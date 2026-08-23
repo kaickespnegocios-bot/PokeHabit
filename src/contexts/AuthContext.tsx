@@ -113,16 +113,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         } else {
           setProfile(data.profile);
-          if (data.gameState && data.gameState.party.length === 0 && data.gameState.pcBox.length === 0) {
-            const starterOption = STARTERS.find((starter) => starter.pokemonId === 4) || STARTERS[0];
-            const starter = createStarterPartyPokemon(starterOption);
-            await (await import('../services/userService')).saveUserData(firebaseUser.uid, {
-              ...data.gameState,
-              party: [starter],
-              capturedPokedexIds: [...new Set([...data.gameState.capturedPokedexIds, starter.pokemonId])],
-              trainer: { ...data.gameState.trainer, starterChosen: true },
-            });
-          }
           if (!data.gameState && hasLocalProgress(loadStoredState())) {
             setLocalSnapshotForImport(loadStoredState());
             setPendingImport(true);
@@ -159,21 +149,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = useCallback(async () => {
     const result = await authSignInWithGoogle();
-    if (result.success && result.user) {
-      const data = await loadUserData(result.user.uid);
-      if (!data) {
-        const username = result.user.displayName || result.user.email?.split('@')[0] || 'Entrenador';
-        const starterOption = STARTERS.find((starter) => starter.pokemonId === 4) || STARTERS[0];
-        const starter = createStarterPartyPokemon(starterOption);
-        await createInitialUserDocument(
-          result.user.uid,
-          result.user.email || '',
-          username,
-          undefined,
-          createFreshState([starter])
-        );
-      }
-    }
     return result;
   }, []);
 

@@ -26,9 +26,15 @@ import {
   loadUserData,
   mergeProfileIntoTrainer,
   needsGenderMigration,
+  saveUserData,
   setUserGender,
 } from './services/userService';
-import { POKEDEX_DATABASE, getRandomCatchablePokemon } from './utils/pokeApi';
+import {
+  POKEDEX_DATABASE,
+  createPartyPokemonFromPokedex,
+  fetchPokemonData,
+  getRandomCatchablePokemon,
+} from './utils/pokeApi';
 import { soundFx } from './utils/audio';
 import confetti from 'canvas-confetti';
 
@@ -55,6 +61,7 @@ import { GoogleFitModal } from './components/GoogleFitModal';
 import { AudioPlayerWidget } from './components/AudioPlayerWidget';
 import { PokemonCareTab } from './components/PokemonCareTab';
 import { GenderMigrationModal } from './components/GenderMigrationModal';
+import { StarterModal } from './components/StarterModal';
 import { SexualHealthState, BerryId } from './types';
 
 interface AppProps {
@@ -174,6 +181,17 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
     },
     [isAuthenticated, updateProfile]
   );
+
+  const handleStarterComplete = async (trainerUpdates: Partial<TrainerProfile>, starter: PartyPokemon) => {
+    const nextState = {
+      ...state,
+      trainer: { ...state.trainer, ...trainerUpdates, starterChosen: true },
+      party: [...state.party, starter],
+      capturedPokedexIds: [...new Set([...state.capturedPokedexIds, starter.pokemonId])],
+    };
+    setState(nextState);
+    if (user) await saveUserData(user.uid, nextState);
+  };
 
   const handleSignOut = useCallback(async () => {
     await signOut();
@@ -1204,6 +1222,20 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
     }));
   };
 
+  const handleClaimSpecialPokemon = async (pokemonId: number) => {
+    if (state.capturedPokedexIds.includes(pokemonId)) return;
+    const entry = await fetchPokemonData(pokemonId);
+    if (!entry || (!entry.isLegendary && !entry.isMythical)) return;
+    const specialPokemon = createPartyPokemonFromPokedex(entry, 50);
+    setState((prev) => ({
+      ...prev,
+      party: prev.party.length < 6 ? [...prev.party, specialPokemon] : prev.party,
+      pcBox: prev.party.length >= 6 ? [...prev.pcBox, specialPokemon] : prev.pcBox,
+      capturedPokedexIds: [...new Set([...prev.capturedPokedexIds, pokemonId])],
+    }));
+    soundFx.playVictory();
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col selection:bg-red-500 selection:text-white">
       {/* Top Header (Clean Minimal Streak, Steps & Coins) */}
@@ -1364,7 +1396,9 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
         {activeTab === 'achievements' && (
           <AchievementsView
             achievements={state.achievements}
+            capturedIds={state.capturedPokedexIds}
             onClaimLegendary={handleClaimLegendary}
+            onClaimSpecialPokemon={handleClaimSpecialPokemon}
           />
         )}
 
@@ -1443,6 +1477,13 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
             const saved = await setUserGender(user.uid, gender);
             if (saved) await refreshProfile();
           }}
+        />
+      )}
+
+      {isAuthenticated && !authLoading && !pendingImport && (!state.trainer.starterChosen || state.party.length === 0) && (
+        <StarterModal
+          initialTrainer={state.trainer}
+          onComplete={handleStarterComplete}
         />
       )}
 

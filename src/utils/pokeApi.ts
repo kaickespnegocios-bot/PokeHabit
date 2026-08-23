@@ -2,6 +2,7 @@ import { PartyPokemon, PokedexEntry, PokemonType } from '../types';
 
 const CACHE_PREFIX = 'pokeapi_cache_';
 const POKEDEX_CATALOG_CACHE_KEY = `${CACHE_PREFIX}national_catalog_v1`;
+const SPECIAL_CATALOG_CACHE_KEY = `${CACHE_PREFIX}special_catalog_v1`;
 
 export interface PokeApiResponse {
   id: number;
@@ -729,6 +730,61 @@ export async function fetchPokedexCatalog(): Promise<PokedexEntry[]> {
     return catalog;
   } catch {
     return LOCAL_POKEDEX_DATA;
+  }
+}
+
+export async function fetchSpecialPokemonCatalog(): Promise<PokedexEntry[]> {
+  try {
+    const cached = localStorage.getItem(SPECIAL_CATALOG_CACHE_KEY);
+    if (cached) return JSON.parse(cached) as PokedexEntry[];
+  } catch {
+    // Ignore invalid cache.
+  }
+
+  try {
+    const response = await fetch('https://pokeapi.co/api/v2/pokemon-species?limit=1025&offset=0');
+    if (!response.ok) throw new Error('PokeAPI species response not ok');
+    const data = (await response.json()) as {
+      results: { name: string; url: string }[];
+    };
+    const specialEntries: PokedexEntry[] = [];
+    for (let index = 0; index < data.results.length; index += 12) {
+      const batch = await Promise.all(data.results.slice(index, index + 12).map(async ({ name, url }) => {
+        const speciesResponse = await fetch(url);
+        if (!speciesResponse.ok) return null;
+        const species = (await speciesResponse.json()) as {
+          id: number;
+          is_legendary: boolean;
+          is_mythical: boolean;
+        };
+        if (!species.is_legendary && !species.is_mythical) return null;
+        const localEntry = LOCAL_POKEDEX_DATA.find((entry) => entry.id === species.id);
+        const displayName = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
+        return {
+          id: species.id,
+          name: localEntry?.name || displayName,
+          types: localEntry?.types || ['normal'],
+          sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${species.id}.png`,
+          officialArtwork: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${species.id}.png`,
+          isLegendary: species.is_legendary,
+          isMythical: species.is_mythical,
+          captured: false,
+          height: localEntry?.height || 0,
+          weight: localEntry?.weight || 0,
+          description: species.is_mythical ? 'Pokémon singular descubierto en PokeAPI.' : 'Pokémon legendario descubierto en PokeAPI.',
+        };
+      }));
+      specialEntries.push(...batch.filter((entry): entry is PokedexEntry => entry !== null));
+    }
+    specialEntries.sort((a, b) => a.id - b.id);
+    try {
+      localStorage.setItem(SPECIAL_CATALOG_CACHE_KEY, JSON.stringify(specialEntries));
+    } catch {
+      // Ignore storage limits.
+    }
+    return specialEntries;
+  } catch {
+    return LOCAL_POKEDEX_DATA.filter((entry) => entry.isLegendary || entry.isMythical);
   }
 }
 

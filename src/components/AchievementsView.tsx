@@ -1,20 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Achievement, PartyPokemon } from '../types';
 import { POKEMON_TYPES } from '../data/pokemonTypes';
+import { fetchSpecialPokemonCatalog } from '../utils/pokeApi';
 import { Trophy, Crown, Sparkles, CheckCircle2, Lock, Gift } from 'lucide-react';
 import { soundFx } from '../utils/audio';
 import confetti from 'canvas-confetti';
 
 interface AchievementsViewProps {
   achievements: Achievement[];
+  capturedIds: number[];
   onClaimLegendary: (achievement: Achievement) => void;
+  onClaimSpecialPokemon: (pokemonId: number) => void;
 }
 
 export const AchievementsView: React.FC<AchievementsViewProps> = ({
   achievements,
+  capturedIds,
   onClaimLegendary,
+  onClaimSpecialPokemon,
 }) => {
   const [celebrationAchievement, setCelebrationAchievement] = useState<Achievement | null>(null);
+  const [specialPokemon, setSpecialPokemon] = useState<Awaited<ReturnType<typeof fetchSpecialPokemonCatalog>>>([]);
+
+  useEffect(() => {
+    fetchSpecialPokemonCatalog().then(setSpecialPokemon);
+  }, []);
 
   const unlockedCount = achievements.filter((a) => a.unlocked).length;
 
@@ -35,6 +45,35 @@ export const AchievementsView: React.FC<AchievementsViewProps> = ({
           <p className="text-xs text-slate-400 mt-1">
             Los Pokémon legendarios y míticos <strong>nunca salen de huevos</strong>. Se ganan únicamente completando grandes hitos de constancia, estudio y actividad física.
           </p>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h3 className="text-sm font-black text-white">Santuario de PokeAPI</h3>
+        <p className="text-xs text-slate-400">Los legendarios y singulares se consiguen por hitos de Pokédex, nunca mediante huevos.</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {specialPokemon.map((pokemon, index) => {
+            const claimed = capturedIds.includes(pokemon.id);
+            const requiredCaptures = Math.min(50, 5 + index * 2);
+            const canClaim = !claimed && capturedIds.length >= requiredCaptures;
+            return (
+              <div key={pokemon.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-3 text-center">
+                <img src={pokemon.sprite} alt={pokemon.name} className={`w-16 h-16 mx-auto object-contain pixelated ${claimed || canClaim ? '' : 'brightness-0 opacity-30'}`} />
+                <p className="text-xs font-black text-white truncate">{pokemon.name}</p>
+                <p className="text-[10px] text-slate-400">{claimed ? 'Conseguido' : `${requiredCaptures} capturas`}</p>
+                {!claimed && (
+                  <button
+                    type="button"
+                    disabled={!canClaim}
+                    onClick={() => onClaimSpecialPokemon(pokemon.id)}
+                    className="mt-2 w-full py-1.5 bg-amber-500 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 disabled:cursor-not-allowed text-[10px] font-black rounded-lg cursor-pointer"
+                  >
+                    {canClaim ? 'Reclamar' : 'Bloqueado'}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
