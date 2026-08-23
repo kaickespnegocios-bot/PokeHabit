@@ -5,12 +5,10 @@ import { soundFx } from '../utils/audio';
 
 interface HeaderProps {
   trainer: TrainerProfile;
-  onOpenGoogleFitModal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   trainer,
-  onOpenGoogleFitModal,
 }) => {
   return (
     <header className="bg-slate-900/95 backdrop-blur-md text-white shadow-md border-b border-slate-800 sticky top-0 z-40">
@@ -28,11 +26,10 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Pasos Hoy (Conexión Google Fit) */}
-        <button
-          onClick={() => {
-            onOpenGoogleFitModal?.();
-            soundFx.playClick();
-          }}
+ <div
+  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-3 sm:px-4 py-1.5 rounded-2xl shadow-xs"
+  title="Pasos Hoy"
+>
           className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 px-3 sm:px-4 py-1.5 rounded-2xl shadow-xs cursor-pointer transition-all active:scale-95"
           title="Pasos Hoy • Clic para vincular Google Fit"
         >
@@ -41,9 +38,6 @@ export const Header: React.FC<HeaderProps> = ({
             {trainer.stepsToday.toLocaleString()}{' '}
             <span className="font-bold text-[10px] sm:text-xs text-emerald-300/80">pasos</span>
           </span>
-          {trainer.googleFitConnected && (
-            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full shrink-0" title="Google Fit sincronizado" />
-          )}
         </button>
 
         {/* Monedas PokéQuest */}
