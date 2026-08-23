@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { soundFx } from '../utils/audio';
+import { connectGoogleFit, readTodaySteps } from '../services/googleFit';
 
 interface GoogleFitModalProps {
   trainer: TrainerProfile;
@@ -26,6 +27,7 @@ export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
 }) => {
   const [manualStepsToAdd, setManualStepsToAdd] = useState(1000);
   const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   if (!isOpen) return null;
 
@@ -34,6 +36,22 @@ export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
     onAddSteps(manualStepsToAdd);
     setSyncFeedback(`✓ Añadidos +${manualStepsToAdd.toLocaleString()} pasos manualmente`);
     setTimeout(() => setSyncFeedback(null), 3000);
+  };
+
+  const handleGoogleFitSync = async () => {
+    setSyncFeedback(null);
+    setIsConnecting(true);
+    try {
+      await connectGoogleFit();
+      const syncedSteps = await readTodaySteps();
+      const additionalSteps = Math.max(0, syncedSteps - trainer.stepsToday);
+      if (additionalSteps > 0) onAddSteps(additionalSteps);
+      setSyncFeedback(`Google Fit ha registrado ${syncedSteps.toLocaleString()} pasos hoy.`);
+    } catch (error) {
+      setSyncFeedback(error instanceof Error ? error.message : 'No se pudo vincular Google Fit.');
+    } finally {
+      setIsConnecting(false);
+    }
   };
 
   return (
@@ -70,6 +88,15 @@ export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
               <span>{syncFeedback}</span>
             </div>
           )}
+
+          <button
+            type="button"
+            onClick={handleGoogleFitSync}
+            disabled={isConnecting}
+            className="w-full py-2.5 bg-white hover:bg-slate-100 disabled:opacity-50 text-slate-900 font-black rounded-xl text-xs cursor-pointer transition-colors"
+          >
+            {isConnecting ? 'Conectando con Google Fit...' : 'Vincular y leer pasos de Google Fit'}
+          </button>
 
           {/* Live Step Tracker Summary */}
           <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-4 space-y-3">

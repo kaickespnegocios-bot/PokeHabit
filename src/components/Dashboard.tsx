@@ -208,7 +208,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* Daily Tracker & Habits Summary */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden flex flex-col justify-between">
+        {dailyHabits.length > 0 && <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-xl">
@@ -257,7 +257,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           >
             Abrir Checklist Diario <ArrowRight className="w-3.5 h-3.5" />
           </button>
-        </div>
+        </div>}
       </div>
 
       {/* Active Party Row */}

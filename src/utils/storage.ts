@@ -16,7 +16,6 @@ import {
 } from '../types';
 import {
   INITIAL_ACHIEVEMENTS,
-  INITIAL_DAILY_HABITS,
   INITIAL_SHOP_ITEMS,
   INITIAL_SKILL_STATS,
   INITIAL_SUBJECTS,
@@ -67,7 +66,7 @@ export function createFreshState(party: PartyPokemon[] = []): AppState {
     pcBox: [],
     capturedPokedexIds: party.map((pokemon) => pokemon.pokemonId),
     tasks: [],
-    dailyHabits: INITIAL_DAILY_HABITS.map((habit) => ({ ...habit, completed: false })),
+    dailyHabits: [],
     subjects: INITIAL_SUBJECTS.map((subject) => ({
       ...subject,
       currentGrade: 0,
@@ -113,7 +112,7 @@ export function loadStoredState(): AppState {
         pcBox: parsed.pcBox || [],
         capturedPokedexIds: parsed.capturedPokedexIds || [4],
         tasks: (parsed.tasks || []).filter((item: Task) => !isSeededContent(item.id)),
-        dailyHabits: parsed.dailyHabits || INITIAL_DAILY_HABITS,
+        dailyHabits: [],
         subjects: parsed.subjects || INITIAL_SUBJECTS,
         examBosses: (parsed.examBosses || []).filter((item: ExamBoss) => !isSeededContent(item.id)),
         flashcards: (parsed.flashcards || []).filter((item: Flashcard) => !isSeededContent(item.id)),
@@ -169,7 +168,7 @@ export function loadStateForUser(cloudState: AppState | null | undefined): AppSt
       pcBox: cloudState.pcBox || [],
       capturedPokedexIds: cloudState.capturedPokedexIds || [4],
       tasks: (cloudState.tasks || []).filter((item) => !isSeededContent(item.id)),
-      dailyHabits: cloudState.dailyHabits || INITIAL_DAILY_HABITS,
+      dailyHabits: [],
       subjects: cloudState.subjects || INITIAL_SUBJECTS,
       examBosses: (cloudState.examBosses || []).filter((item) => !isSeededContent(item.id)),
       flashcards: (cloudState.flashcards || []).filter((item) => !isSeededContent(item.id)),
