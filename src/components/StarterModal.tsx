@@ -6,14 +6,16 @@ import { PartyPokemon, TrainerProfile } from '../types';
 import { POKEMON_TYPES } from '../data/pokemonTypes';
 import { soundFx } from '../utils/audio';
 
+const AVATAR_BASE_PATH = `${import.meta.env.BASE_URL}assets/avatars/base`;
+
 interface StarterModalProps {
   initialTrainer?: TrainerProfile;
   onComplete: (trainerUpdates: Partial<TrainerProfile>, starter: PartyPokemon) => void;
 }
 
 const TRAINER_SKINS = [
-  { id: 'male', name: 'Hombre', spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/red.png' },
-  { id: 'female', name: 'Mujer', spriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/leaf.png' },
+  { id: 'male', name: 'Hombre', spriteUrl: `${AVATAR_BASE_PATH}/hombre.png` },
+  { id: 'female', name: 'Mujer', spriteUrl: `${AVATAR_BASE_PATH}/mujer.png` },
 ] as const;
 
 export const StarterModal: React.FC<StarterModalProps> = ({ initialTrainer, onComplete }) => {

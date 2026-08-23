@@ -1,6 +1,6 @@
-# PokeHabbit
+# PokeHabit
 
-PokeHabbit convierte tus hábitos, tareas domésticas y sesiones de estudio en una aventura Pokémon. Completa objetivos, gana experiencia, cuida a tu equipo y desbloquea nuevos logros.
+PokeHabit convierte tus hábitos, tareas domésticas y sesiones de estudio en una aventura Pokémon. Completa objetivos, gana experiencia, cuida a tu equipo y desbloquea nuevos logros.
 
 ## Funcionalidades
 
