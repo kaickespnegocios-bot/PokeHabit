@@ -1,8 +1,10 @@
 import {
   User,
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   onAuthStateChanged,
   sendPasswordResetEmail,
+  signInWithPopup,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   updateProfile,
@@ -15,6 +17,9 @@ export type AuthErrorCode =
   | 'user-not-found'
   | 'email-already-in-use'
   | 'weak-password'
+  | 'operation-not-allowed'
+  | 'popup-closed'
+  | 'unauthorized-domain'
   | 'missing-fields'
   | 'not-configured'
   | 'network-error'
@@ -40,6 +45,12 @@ function mapFirebaseError(code: string): AuthErrorCode {
       return 'email-already-in-use';
     case 'auth/weak-password':
       return 'weak-password';
+    case 'auth/operation-not-allowed':
+      return 'operation-not-allowed';
+    case 'auth/popup-closed-by-user':
+      return 'popup-closed';
+    case 'auth/unauthorized-domain':
+      return 'unauthorized-domain';
     case 'auth/network-request-failed':
       return 'network-error';
     default:
@@ -54,6 +65,9 @@ export function getAuthErrorMessage(error: AuthErrorCode): string {
     'user-not-found': 'No existe una cuenta con ese correo.',
     'email-already-in-use': 'Este correo ya está registrado.',
     'weak-password': 'La contraseña debe tener al menos 6 caracteres.',
+    'operation-not-allowed': 'Activa el proveedor Correo electrónico en Firebase Authentication.',
+    'popup-closed': 'Se canceló el acceso con Google.',
+    'unauthorized-domain': 'Añade este dominio en Firebase Authentication → Configuración → Dominios autorizados.',
     'missing-fields': 'Completa todos los campos obligatorios.',
     'not-configured': 'Firebase no está configurado. Usa modo invitado o añade las variables VITE_FIREBASE_*.',
     'network-error': 'Error de conexión. Comprueba tu internet e inténtalo de nuevo.',
@@ -104,6 +118,21 @@ export async function signIn(email: string, password: string): Promise<AuthResul
   try {
     const auth = ensureAuth();
     const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+    return { success: true, user: credential.user };
+  } catch (err: unknown) {
+    const code = (err as { code?: string }).code || 'unknown';
+    if (code === 'not-configured' || (err as Error).message === 'not-configured') {
+      return { success: false, error: 'not-configured', message: getAuthErrorMessage('not-configured') };
+    }
+    const mapped = mapFirebaseError(code);
+    return { success: false, error: mapped, message: getAuthErrorMessage(mapped) };
+  }
+}
+
+export async function signInWithGoogle(): Promise<AuthResult> {
+  try {
+    const auth = ensureAuth();
+    const credential = await signInWithPopup(auth, new GoogleAuthProvider());
     return { success: true, user: credential.user };
   } catch (err: unknown) {
     const code = (err as { code?: string }).code || 'unknown';

@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { User } from 'firebase/auth';
 import {
   signIn as authSignIn,
+  signInWithGoogle as authSignInWithGoogle,
   signOut as authSignOut,
   signUp as authSignUp,
   resetPassword,
@@ -33,6 +34,7 @@ interface AuthContextValue {
   pendingImport: boolean;
   signUp: (email: string, password: string, username: string, gender: 'male' | 'female', starterId: number) => Promise<AuthResult>;
   signIn: (email: string, password: string) => Promise<AuthResult>;
+  signInWithGoogle: () => Promise<AuthResult>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<AuthResult>;
   refreshProfile: () => Promise<void>;
@@ -145,6 +147,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return authSignIn(email, password);
   }, []);
 
+  const signInWithGoogle = useCallback(async () => {
+    const result = await authSignInWithGoogle();
+    if (result.success && result.user) {
+      const data = await loadUserData(result.user.uid);
+      if (!data) {
+        const username = result.user.displayName || result.user.email?.split('@')[0] || 'Entrenador';
+        await createInitialUserDocument(result.user.uid, result.user.email || '', username);
+      }
+    }
+    return result;
+  }, []);
+
   const signOut = useCallback(async () => {
     await authSignOut();
     setProfile(null);
@@ -203,6 +217,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       pendingImport,
       signUp,
       signIn,
+      signInWithGoogle,
       signOut,
       resetPassword,
       refreshProfile,
@@ -219,6 +234,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       pendingImport,
       signUp,
       signIn,
+      signInWithGoogle,
       signOut,
       refreshProfile,
       importLocalProgress,

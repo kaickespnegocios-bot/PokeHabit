@@ -22,7 +22,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   standalone = false,
 }) => {
   const navigate = useNavigate();
-  const { signIn, signUp, resetPassword, isFirebaseReady } = useAuth();
+  const { signIn, signInWithGoogle, signUp, resetPassword, isFirebaseReady } = useAuth();
 
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState('');
@@ -89,6 +89,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setSuccess('');
+    setLoading(true);
+    soundFx.playClick();
+
+    try {
+      const result = await signInWithGoogle();
+      if (result.success) {
+        soundFx.playVictory();
+        handleClose();
+      } else {
+        setError(result.message || 'Error al acceder con Google');
+        soundFx.playCancel();
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const wrapperClass = standalone
     ? 'min-h-screen bg-slate-950 flex items-center justify-center p-4'
     : 'fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fadeIn';
@@ -135,6 +155,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               {success}
             </div>
+          )}
+
+          {mode !== 'reset' && (
+            <>
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={loading || !isFirebaseReady}
+                className="w-full py-3 bg-white hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 font-black text-sm rounded-2xl flex items-center justify-center gap-2 cursor-pointer shadow-lg transition-colors"
+              >
+                <span className="w-5 h-5 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs font-black text-blue-600">G</span>
+                Continuar con Google
+              </button>
+              <div className="flex items-center gap-3 text-[10px] text-slate-500">
+                <span className="h-px flex-1 bg-slate-700" />
+                <span>o usa tu correo</span>
+                <span className="h-px flex-1 bg-slate-700" />
+              </div>
+            </>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-3">
