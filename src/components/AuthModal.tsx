@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, X, KeyRound, LogIn, UserPlus, AlertCircle, CheckCircle2, UserCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { soundFx } from '../utils/audio';
+import { STARTERS } from '../data/starters';
+import { POKEMON_TYPES } from '../data/pokemonTypes';
 
 export type AuthMode = 'login' | 'register' | 'reset';
 
@@ -27,6 +29,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [gender, setGender] = useState<'male' | 'female' | ''>('');
+  const [selectedStarterId, setSelectedStarterId] = useState(4);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -63,7 +66,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           setLoading(false);
           return;
         }
-        const result = await signUp(email, password, username, gender);
+        const result = await signUp(email, password, username, gender, selectedStarterId);
         if (result.success) {
           soundFx.playVictory();
           handleClose();
@@ -213,6 +216,34 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     minLength={6}
                     required
                   />
+                </div>
+              </div>
+            )}
+
+            {mode === 'register' && (
+              <div>
+                <label className="text-xs font-bold text-slate-300 block mb-2">Starter * (obligatorio)</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {STARTERS.filter((starter) => starter.generation === 1).map((starter) => {
+                    const selected = starter.pokemonId === selectedStarterId;
+                    const typeInfo = POKEMON_TYPES[starter.types[0]];
+                    return (
+                      <button
+                        key={starter.pokemonId}
+                        type="button"
+                        onClick={() => { setSelectedStarterId(starter.pokemonId); soundFx.playClick(); }}
+                        className={`p-2 rounded-xl border text-center cursor-pointer transition-all ${
+                          selected
+                            ? 'border-red-500 bg-red-950/40 ring-2 ring-red-500/40'
+                            : 'border-slate-700 bg-slate-800 hover:border-slate-500'
+                        }`}
+                      >
+                        <img src={starter.officialArtwork} alt={starter.name} className="w-14 h-14 mx-auto object-contain" />
+                        <span className="block text-[10px] font-black text-white truncate">{starter.name}</span>
+                        <span className="text-[9px] font-bold" style={{ color: typeInfo.color }}>{typeInfo.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}

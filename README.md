@@ -1,19 +1,33 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# PokeHabbit
 
-# Run and deploy your AI Studio app
+PokeHabbit convierte tus hábitos, tareas domésticas y sesiones de estudio en una aventura Pokémon. Completa objetivos, gana experiencia, cuida a tu equipo y desbloquea nuevos logros.
 
-This contains everything you need to run your app locally.
-https://ai.studio/apps/c65c3731-86b7-4669-951f-73e7c3651dc9
+## Funcionalidades
 
-## Run Locally
+- Gestión de hábitos, tareas y sesiones Pomodoro.
+- Equipo Pokémon, cuidados, evoluciones, Pokédex y tienda.
+- Registro con elección de skin y Pokémon starter.
+- Perfil de entrenador y sincronización opcional con Firebase.
 
-**Prerequisites:**  Node.js
+## Desarrollo local
 
+**Requisitos:** Node.js
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+npm install
+npm run dev
+```
+
+La aplicación estará disponible en `http://localhost:3000`.
+
+## Variables de entorno
+
+Copia `.env.example` como `.env` y configura las variables de Firebase si quieres activar cuentas y sincronización en la nube. Las claves locales no deben subirse al repositorio.
+
+## Comandos
+
+```bash
+npm run dev     # Servidor de desarrollo
+npm run build   # Compilación de producción
+npm run lint    # Comprobación de TypeScript
+```

@@ -16,6 +16,7 @@ import {
 } from '../services/userService';
 import { UserAccountProfile } from '../types';
 import { isFirebaseConfigured } from '../services/firebase';
+import { STARTERS, createStarterPartyPokemon } from '../data/starters';
 import {
   AppState,
   hasLocalProgress,
@@ -30,7 +31,7 @@ interface AuthContextValue {
   isLoading: boolean;
   isFirebaseReady: boolean;
   pendingImport: boolean;
-  signUp: (email: string, password: string, username: string) => Promise<AuthResult>;
+  signUp: (email: string, password: string, username: string, gender: 'male' | 'female', starterId: number) => Promise<AuthResult>;
   signIn: (email: string, password: string) => Promise<AuthResult>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<AuthResult>;
@@ -123,8 +124,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = useCallback(
-    async (email: string, password: string, username: string) => {
-      const result = await authSignUp(email, password, username);
+    async (email: string, password: string, username: string, gender: 'male' | 'female', starterId: number) => {
+      const result = await authSignUp(email, password, username, gender);
+      if (result.success && result.user) {
+        const starterOption = STARTERS.find((starter) => starter.pokemonId === starterId) || STARTERS[0];
+        const starter = createStarterPartyPokemon(starterOption);
+        const initialState = loadStoredState();
+        await createInitialUserDocument(result.user.uid, email, username, gender, {
+          ...initialState,
+          party: [starter],
+          capturedPokedexIds: [...new Set([...initialState.capturedPokedexIds, starter.pokemonId])],
+        });
+      }
       return result;
     },
     []
