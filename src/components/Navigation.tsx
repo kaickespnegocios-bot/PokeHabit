@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   LayoutDashboard,
   CheckSquare,
@@ -63,6 +63,24 @@ export const Navigation: React.FC<NavigationProps> = ({
 }) => {
   const [showMoreModal, setShowMoreModal] = useState(false);
   const [showDesktopMenu, setShowDesktopMenu] = useState(false);
+  const desktopMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const closeMenu = (event: MouseEvent) => {
+      if (desktopMenuRef.current && !desktopMenuRef.current.contains(event.target as Node)) {
+        setShowDesktopMenu(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setShowDesktopMenu(false);
+    };
+    document.addEventListener('mousedown', closeMenu);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('mousedown', closeMenu);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, []);
 
   const tabs: {
     id: TabKey;
@@ -181,12 +199,15 @@ export const Navigation: React.FC<NavigationProps> = ({
     <>
       {/* Desktop / Tablet Section Dropdown */}
       <nav className="bg-slate-900 border-b border-slate-800 sticky top-[53px] z-30 shadow hidden sm:block">
-        <div className="max-w-7xl mx-auto px-3 py-2 relative">
+        <div ref={desktopMenuRef} className="max-w-7xl mx-auto px-3 py-2 relative">
           <button
             onClick={() => {
               soundFx.playClick();
               setShowDesktopMenu((open) => !open);
             }}
+            aria-expanded={showDesktopMenu}
+            aria-haspopup="menu"
+            aria-controls="desktop-section-menu"
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-bold cursor-pointer hover:bg-slate-700 transition-colors"
           >
             {tabs.find((tab) => tab.id === activeTab)?.icon}
@@ -195,11 +216,12 @@ export const Navigation: React.FC<NavigationProps> = ({
           </button>
 
           {showDesktopMenu && (
-            <div className="absolute left-3 top-full mt-1 w-64 max-h-[70vh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-2 animate-fadeIn">
+            <div id="desktop-section-menu" role="menu" className="absolute left-3 top-full mt-1 w-64 max-h-[70vh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-2 animate-fadeIn">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => handleSelect(tab.id)}
+                  role="menuitem"
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold cursor-pointer transition-colors ${
                     activeTab === tab.id ? 'bg-red-600 text-white' : 'text-slate-200 hover:bg-slate-800'
                   }`}

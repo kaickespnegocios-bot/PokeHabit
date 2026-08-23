@@ -667,7 +667,8 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
     setState((prev) => {
       const seedKey = `seed_${berryType}`;
       const seedCount = prev.inventory[seedKey] || 0;
-      if (seedCount <= 0) return prev;
+      const plot = prev.berryGarden.plots.find((candidate) => candidate.id === plotId);
+      if (seedCount <= 0 || !plot || plot.state !== 'empty') return prev;
 
       return {
         ...prev,
@@ -710,7 +711,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
   const handleHarvestBerry = (plotId: number) => {
     setState((prev) => {
       const plot = prev.berryGarden.plots.find((p) => p.id === plotId);
-      if (!plot || !plot.berryType) return prev;
+      if (!plot || plot.state !== 'ready' || !plot.berryType) return prev;
       const bType = plot.berryType;
       const yieldQty = 3;
 
@@ -773,12 +774,13 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
   };
 
   const handleHealPokemon = (pokemonId: string, potionItemId: string) => {
-    const potionCount = state.inventory[potionItemId] || 0;
-    if (potionCount <= 0) return;
-
     const healAmount = potionItemId === 'potion_super' ? 50 : 20;
 
     setState((prev) => {
+      const potionCount = prev.inventory[potionItemId] || 0;
+      const pokemonExists = [...prev.party, ...prev.pcBox].some((p) => p.id === pokemonId);
+      if (potionCount <= 0 || !pokemonExists) return prev;
+
       const updateList = (list: PartyPokemon[]) =>
         list.map((p) => {
           if (p.id === pokemonId) {
@@ -805,10 +807,11 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
   };
 
   const handleUseRareCandy = (pokemonId: string) => {
-    const candyCount = state.inventory['rare_candy'] || 0;
-    if (candyCount <= 0) return;
-
     setState((prev) => {
+      const candyCount = prev.inventory['rare_candy'] || 0;
+      const pokemonExists = [...prev.party, ...prev.pcBox].some((p) => p.id === pokemonId);
+      if (candyCount <= 0 || !pokemonExists) return prev;
+
       const updateList = (list: PartyPokemon[]) =>
         list.map((p) => {
           if (p.id === pokemonId) {

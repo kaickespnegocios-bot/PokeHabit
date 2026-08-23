@@ -21,6 +21,7 @@ import { STARTERS, createStarterPartyPokemon } from '../data/starters';
 import {
   AppState,
   hasLocalProgress,
+  createFreshState,
   loadStoredState,
   saveStoredState,
 } from '../utils/storage';
@@ -131,11 +132,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (result.success && result.user) {
         const starterOption = STARTERS.find((starter) => starter.pokemonId === starterId) || STARTERS[0];
         const starter = createStarterPartyPokemon(starterOption);
-        const initialState = loadStoredState();
+        const initialState = createFreshState([starter]);
         await createInitialUserDocument(result.user.uid, email, username, gender, {
           ...initialState,
           party: [starter],
-          capturedPokedexIds: [...new Set([...initialState.capturedPokedexIds, starter.pokemonId])],
         });
       }
       return result;
