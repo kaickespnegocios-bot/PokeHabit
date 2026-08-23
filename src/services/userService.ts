@@ -82,7 +82,10 @@ export function createDefaultProfile(
     trainerName: username,
     gender,
     bio: '',
-    avatarConfig: { ...DEFAULT_AVATAR_CONFIG },
+    avatarConfig: {
+      ...DEFAULT_AVATAR_CONFIG,
+      base: gender === 'female' ? 'trainer-f' : 'classic',
+    },
     themeColor: '#ef4444',
     profileVisibility: 'private',
     privacySettings: { ...DEFAULT_PRIVACY_SETTINGS },

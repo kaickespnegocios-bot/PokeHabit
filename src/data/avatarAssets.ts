@@ -69,7 +69,8 @@ export function avatarAssetUrl(layer: AvatarLayer, assetId: string): string {
     background: 'backgrounds',
   };
   const folder = folderMap[layer];
-  return `${AVATAR_BASE_PATH}/${folder}/${assetId}.svg`;
+  const extension = layer === 'background' ? 'png' : 'svg';
+  return `${AVATAR_BASE_PATH}/${folder}/${assetId}.${extension}`;
 }
 
 export function getSkinToneColor(skinToneId: string): string {
