@@ -110,3 +110,39 @@ export function resetToInitialState() {
     console.warn('Could not clear state from localStorage', e);
   }
 }
+
+/** Detecta si hay progreso local significativo (más allá del estado inicial) */
+export function hasLocalProgress(state: AppState): boolean {
+  return (
+    state.party.length > 0 ||
+    state.pcBox.length > 0 ||
+    state.tasks.some((t) => t.completed) ||
+    state.trainer.level > 1 ||
+    state.trainer.gold > 200 ||
+    state.trainer.totalTasksCompleted > 0 ||
+    state.capturedPokedexIds.length > 1
+  );
+}
+
+export function loadStateForUser(cloudState: AppState | null | undefined): AppState {
+  if (cloudState) {
+    return {
+      trainer: { ...INITIAL_TRAINER, ...cloudState.trainer },
+      party: cloudState.party || [],
+      pcBox: cloudState.pcBox || [],
+      capturedPokedexIds: cloudState.capturedPokedexIds || [4],
+      tasks: cloudState.tasks || INITIAL_TASKS,
+      dailyHabits: cloudState.dailyHabits || INITIAL_DAILY_HABITS,
+      subjects: cloudState.subjects || INITIAL_SUBJECTS,
+      examBosses: cloudState.examBosses || INITIAL_EXAM_BOSSES,
+      flashcards: cloudState.flashcards || INITIAL_FLASHCARDS,
+      skillStats: { ...INITIAL_SKILL_STATS, ...(cloudState.skillStats || {}) },
+      sexualHealthState: { ...INITIAL_SEXUAL_HEALTH, ...(cloudState.sexualHealthState || {}) },
+      berryGarden: { ...INITIAL_BERRY_GARDEN, ...(cloudState.berryGarden || {}) },
+      eggs: cloudState.eggs || [],
+      inventory: cloudState.inventory || { pokeball: 5, potion_normal: 2, rare_candy: 1, seed_oran: 3, seed_cheri: 2 },
+      achievements: cloudState.achievements || INITIAL_ACHIEVEMENTS,
+    };
+  }
+  return loadStoredState();
+}

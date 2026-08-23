@@ -13,8 +13,13 @@ import {
   Sparkles,
   MoreHorizontal,
   X,
+  User,
+  LogIn,
 } from 'lucide-react';
 import { soundFx } from '../utils/audio';
+import { AvatarRenderer } from './AvatarRenderer';
+import { AvatarConfig } from '../types';
+import { DEFAULT_AVATAR_CONFIG } from '../data/avatarAssets';
 
 export type TabKey =
   | 'dashboard'
@@ -27,7 +32,8 @@ export type TabKey =
   | 'shop'
   | 'achievements'
   | 'skills'
-  | 'sexual_health';
+  | 'sexual_health'
+  | 'profile';
 
 interface NavigationProps {
   activeTab: TabKey;
@@ -36,6 +42,10 @@ interface NavigationProps {
   pendingHabitsCount: number;
   readyEvolutionsCount: number;
   hungryPokemonCount?: number;
+  isAuthenticated?: boolean;
+  avatarConfig?: AvatarConfig;
+  avatarFallback?: string;
+  onOpenAuth?: () => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
@@ -45,6 +55,10 @@ export const Navigation: React.FC<NavigationProps> = ({
   pendingHabitsCount,
   readyEvolutionsCount,
   hungryPokemonCount = 0,
+  isAuthenticated = false,
+  avatarConfig,
+  avatarFallback,
+  onOpenAuth,
 }) => {
   const [showMoreModal, setShowMoreModal] = useState(false);
 
@@ -127,9 +141,30 @@ export const Navigation: React.FC<NavigationProps> = ({
       highlight: true,
       category: 'Privado',
     },
+    {
+      id: 'profile',
+      label: isAuthenticated ? 'Perfil' : 'Iniciar sesión',
+      icon: isAuthenticated ? (
+        <AvatarRenderer
+          config={avatarConfig || DEFAULT_AVATAR_CONFIG}
+          size="sm"
+          className="rounded-md"
+          showBackground={false}
+          fallbackSprite={avatarFallback}
+        />
+      ) : (
+        <LogIn className="w-4 h-4" />
+      ),
+      category: 'Cuenta',
+    },
   ];
 
   const handleSelect = (tabId: TabKey) => {
+    if (tabId === 'profile' && !isAuthenticated) {
+      soundFx.playClick();
+      onOpenAuth?.();
+      return;
+    }
     soundFx.playClick();
     onTabChange(tabId);
     setShowMoreModal(false);

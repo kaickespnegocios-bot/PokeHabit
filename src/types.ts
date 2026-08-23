@@ -279,12 +279,89 @@ export interface Achievement {
   isLegendary: boolean;
 }
 
+export interface AvatarConfig {
+  base: string;
+  skinTone: string;
+  hair: string;
+  hairColor: string;
+  clothes: string;
+  accessory: string;
+  background: string;
+}
+
+export type ProfileGender = 'male' | 'female';
+export type ProfileVisibility = 'public' | 'private';
+
+export interface PrivacySettings {
+  profile: boolean;
+  level: boolean;
+  pokemonTeam: boolean;
+  pokedex: boolean;
+  achievements: boolean;
+  streak: boolean;
+  tasksCompleted: boolean;
+  steps: boolean;
+  studyStats: boolean;
+  healthStats: boolean;
+}
+
+export const DEFAULT_PRIVACY_SETTINGS: PrivacySettings = {
+  profile: false,
+  level: false,
+  pokemonTeam: false,
+  pokedex: false,
+  achievements: false,
+  streak: false,
+  tasksCompleted: false,
+  steps: false,
+  studyStats: false,
+  healthStats: false,
+};
+
+/** Datos expuestos en perfil público — nunca incluir email, uid, gender ni salud privada */
+export interface PublicProfileData {
+  username: string;
+  trainerName?: string;
+  avatarConfig?: AvatarConfig;
+  bio?: string;
+  themeColor?: string;
+  level?: number;
+  pokemonTeam?: Array<{ name: string; nickname?: string; sprite: string; level: number }>;
+  pokedexCount?: number;
+  achievementsUnlocked?: number;
+  streak?: number;
+  tasksCompleted?: number;
+  steps?: number;
+  studyStats?: { pomodorosDone: number; subjectsCount: number };
+}
+
+export interface UserAccountProfile {
+  uid: string;
+  email: string;
+  username: string;
+  trainerName: string;
+  gender?: ProfileGender;
+  bio?: string;
+  avatarConfig: AvatarConfig;
+  themeColor?: string;
+  profileVisibility: ProfileVisibility;
+  privacySettings: PrivacySettings;
+  healthStatsVisibility: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface TrainerProfile {
   name: string;
+  username?: string;
+  bio?: string;
   email?: string;
   level: number;
+  currentXp?: number;
+  maxXp?: number;
   gold: number;
   avatarSprite: string;
+  avatarConfig?: AvatarConfig;
   trainerTitle?: string;
   trainerClass?: string;
   favoriteType?: PokemonType;
@@ -297,8 +374,10 @@ export interface TrainerProfile {
   stepGoal: number;
   healthConnectGranted: boolean;
   isGoogleFitConnected?: boolean;
+  googleFitConnected?: boolean;
   googleFitEmail?: string;
   googleFitLastSync?: string;
+  lastSyncTime?: string;
   totalTasksCompleted: number;
   totalStepsAllTime: number;
   totalPomodorosDone: number;

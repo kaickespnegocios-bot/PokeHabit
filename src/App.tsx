@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   DailyHabit,
   Egg,
@@ -17,8 +18,10 @@ import {
   AppState,
   loadStoredState,
   saveStoredState,
-  resetToInitialState,
+  loadStateForUser,
 } from './utils/storage';
+import { useAuth, useHybridPersistence } from './contexts/AuthContext';
+import { loadUserData, mergeProfileIntoTrainer } from './services/userService';
 import { POKEDEX_DATABASE, getRandomCatchablePokemon } from './utils/pokeApi';
 import { soundFx } from './utils/audio';
 import confetti from 'canvas-confetti';
@@ -36,21 +39,117 @@ import { PokedexView } from './components/PokedexView';
 import { AchievementsView } from './components/AchievementsView';
 import { SkillTree } from './components/SkillTree';
 import { SexualHealthTab } from './components/SexualHealthTab';
-import { TrainerAuthModal } from './components/TrainerAuthModal';
 import { TrainerCustomizerModal } from './components/TrainerCustomizerModal';
+import { AuthModal } from './components/AuthModal';
+import { ProfilePage } from './components/ProfilePage';
+import { ProfileEditor } from './components/ProfileEditor';
+import { ImportProgressModal } from './components/ImportProgressModal';
 import { GoogleFitModal } from './components/GoogleFitModal';
 import { StarterModal } from './components/StarterModal';
 import { AudioPlayerWidget } from './components/AudioPlayerWidget';
 import { PokemonCareTab } from './components/PokemonCareTab';
 import { SexualHealthState, BerryId } from './types';
 
-export const App: React.FC = () => {
+interface AppProps {
+  initialTab?: TabKey;
+}
+
+export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
+  const navigate = useNavigate();
+  const {
+    user,
+    profile,
+    isAuthenticated,
+    isLoading: authLoading,
+    pendingImport,
+    importLocalProgress,
+    startFreshOnCloud,
+    updateProfile,
+    signOut,
+  } = useAuth();
+
   const [state, setState] = useState<AppState>(() => loadStoredState());
-  const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
+  const [activeTab, setActiveTab] = useState<TabKey>(initialTab);
   const [showStarterModal, setShowStarterModal] = useState<boolean>(false);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const [showProfileEditor, setShowProfileEditor] = useState<boolean>(false);
   const [showAvatarModal, setShowAvatarModal] = useState<boolean>(false);
   const [showFitModal, setShowFitModal] = useState<boolean>(false);
+  const [importLoading, setImportLoading] = useState(false);
+  const [cloudLoaded, setCloudLoaded] = useState(false);
+
+  useHybridPersistence(state, isAuthenticated, user?.uid);
+
+  useEffect(() => {
+    if (!user || pendingImport || authLoading || cloudLoaded) return;
+    loadUserData(user.uid).then((data) => {
+      if (data?.gameState) {
+        const loaded = loadStateForUser(data.gameState);
+        const mergedTrainer = profile
+          ? { ...loaded.trainer, ...mergeProfileIntoTrainer(profile) }
+          : loaded.trainer;
+        setState({ ...loaded, trainer: mergedTrainer });
+      } else if (profile) {
+        setState((prev) => ({
+          ...prev,
+          trainer: { ...prev.trainer, ...mergeProfileIntoTrainer(profile) },
+        }));
+      }
+      setCloudLoaded(true);
+    });
+  }, [user, pendingImport, authLoading, profile, cloudLoaded]);
+
+  useEffect(() => {
+    if (!user) setCloudLoaded(false);
+  }, [user]);
+
+  useEffect(() => {
+    if (!profile) return;
+    setState((prev) => ({
+      ...prev,
+      trainer: { ...prev.trainer, ...mergeProfileIntoTrainer(profile) },
+    }));
+  }, [profile?.updatedAt]);
+
+  const handleImportProgress = useCallback(async () => {
+    setImportLoading(true);
+    try {
+      const imported = await importLocalProgress();
+      if (imported) setState(imported);
+    } finally {
+      setImportLoading(false);
+    }
+  }, [importLocalProgress]);
+
+  const handleStartFresh = useCallback(async () => {
+    setImportLoading(true);
+    try {
+      await startFreshOnCloud();
+    } finally {
+      setImportLoading(false);
+    }
+  }, [startFreshOnCloud]);
+
+  const handleSaveProfile = useCallback(
+    async (updates: {
+      profile: Partial<import('./types').UserAccountProfile>;
+      trainer: Partial<TrainerProfile>;
+    }) => {
+      setState((prev) => ({
+        ...prev,
+        trainer: { ...prev.trainer, ...updates.trainer },
+      }));
+      if (isAuthenticated) {
+        await updateProfile(updates.profile);
+      }
+    },
+    [isAuthenticated, updateProfile]
+  );
+
+  const handleSignOut = useCallback(async () => {
+    await signOut();
+    soundFx.playCancel();
+  }, [signOut]);
 
   // Check if party is empty to trigger starter modal
   useEffect(() => {
@@ -59,10 +158,12 @@ export const App: React.FC = () => {
     }
   }, [state.party.length, state.pcBox.length]);
 
-  // Persist state changes to localStorage
+  // Persist state changes to localStorage (guest mode backup; hybrid hook also saves)
   useEffect(() => {
-    saveStoredState(state);
-  }, [state]);
+    if (!isAuthenticated) {
+      saveStoredState(state);
+    }
+  }, [state, isAuthenticated]);
 
   // ----------------------------------------------------
   // HELPER: AWARD XP TO PARTY POKÉMON & TRAINER
@@ -1102,7 +1203,13 @@ export const App: React.FC = () => {
       {/* Top Header (Clean Minimal Streak, Steps & Coins) */}
       <Header
         trainer={state.trainer}
+        profile={profile}
+        isAuthenticated={isAuthenticated}
         onOpenGoogleFitModal={() => setShowFitModal(true)}
+        onOpenProfile={() => setActiveTab('profile')}
+        onEditProfile={() => setShowProfileEditor(true)}
+        onSignOut={handleSignOut}
+        onOpenAuth={() => setShowAuthModal(true)}
       />
 
       {/* Main Tab Navigation */}
@@ -1110,6 +1217,8 @@ export const App: React.FC = () => {
         activeTab={activeTab}
         onTabChange={(tab) => {
           setActiveTab(tab);
+          if (tab === 'profile') navigate('/profile');
+          else if (window.location.pathname === '/profile') navigate('/');
           soundFx.playClick();
         }}
         pendingTasksCount={state.tasks.filter((t) => !t.completed).length}
@@ -1122,6 +1231,10 @@ export const App: React.FC = () => {
         hungryPokemonCount={
           state.party.filter((p) => (p.hunger ?? 100) < 50 || (p.happiness ?? 100) < 50).length
         }
+        isAuthenticated={isAuthenticated}
+        avatarConfig={profile?.avatarConfig || state.trainer.avatarConfig}
+        avatarFallback={state.trainer.avatarSprite}
+        onOpenAuth={() => setShowAuthModal(true)}
       />
 
       {/* Primary Content View */}
@@ -1259,6 +1372,18 @@ export const App: React.FC = () => {
             onAddXp={advanceSkillStat}
           />
         )}
+
+        {activeTab === 'profile' && (
+          <ProfilePage
+            trainer={state.trainer}
+            profile={profile}
+            party={state.party}
+            capturedCount={state.capturedPokedexIds.length}
+            isAuthenticated={isAuthenticated}
+            onEditProfile={() => setShowProfileEditor(true)}
+            onOpenAuth={() => setShowAuthModal(true)}
+          />
+        )}
       </main>
 
       {/* Starter Selection Onboarding Modal */}
@@ -1269,20 +1394,41 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* Trainer Authentication & Account Modal */}
+      {/* Firebase Authentication Modal */}
       {showAuthModal && (
-        <TrainerAuthModal
-          trainer={state.trainer}
-          onUpdateTrainer={handleUpdateTrainerProfile}
+        <AuthModal
+          mode="login"
+          isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}
         />
       )}
 
-      {/* Trainer Avatar & Visual Customizer Modal */}
+      {/* Profile Editor */}
+      {showProfileEditor && (
+        <ProfileEditor
+          trainer={state.trainer}
+          profile={profile}
+          isOpen={showProfileEditor}
+          onClose={() => setShowProfileEditor(false)}
+          onSave={handleSaveProfile}
+        />
+      )}
+
+      {/* Import local progress on first login */}
+      {pendingImport && isAuthenticated && (
+        <ImportProgressModal
+          onImport={handleImportProgress}
+          onStartFresh={handleStartFresh}
+          isLoading={importLoading}
+        />
+      )}
+
+      {/* Legacy Trainer Avatar Customizer (sprites PokeAPI) */}
       {showAvatarModal && (
         <TrainerCustomizerModal
           trainer={state.trainer}
-          onUpdateTrainer={handleUpdateTrainerProfile}
+          isOpen={showAvatarModal}
+          onSave={handleUpdateTrainerProfile}
           onClose={() => setShowAvatarModal(false)}
         />
       )}
