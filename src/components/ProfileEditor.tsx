@@ -26,7 +26,9 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
   onClose,
   onSave,
 }) => {
-  const [username, setUsername] = useState(profile?.username || trainer.username || trainer.name);
+  const emailUsername = (profile?.email || trainer.email || '').split('@')[0].trim();
+  const defaultUsername = emailUsername || 'Entrenador';
+  const [username, setUsername] = useState(profile?.username || trainer.username || defaultUsername);
   const [trainerName, setTrainerName] = useState(profile?.trainerName || trainer.name);
   const [bio, setBio] = useState(profile?.bio || trainer.bio || '');
   const [themeColor, setThemeColor] = useState(profile?.themeColor || trainer.themeColor || '#ef4444');
@@ -45,14 +47,14 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
     soundFx.playSave();
     onSave({
       profile: {
-        username: username.trim() || 'Entrenador',
+        username: username.trim() || defaultUsername,
         trainerName: trainerName.trim() || 'Entrenador',
         bio: bio.trim(),
         themeColor,
         avatarConfig,
       },
       trainer: {
-        username: username.trim(),
+        username: username.trim() || defaultUsername,
         name: trainerName.trim(),
         bio: bio.trim(),
         themeColor,
