@@ -52,7 +52,7 @@ export const SexualHealthTab: React.FC<SexualHealthTabProps> = ({
     discreetMode: rawState?.discreetMode ?? false,
     logs: Array.isArray(rawState?.logs) ? rawState.logs : [],
     gallery: Array.isArray(rawState?.gallery) ? rawState.gallery : [],
-    lastMeasurementCm: rawState?.lastMeasurementCm ?? 14.5,
+    lastMeasurementCm: rawState?.lastMeasurementCm,
     totalMasturbationCount:
       rawState?.totalMasturbationCount ??
       (Array.isArray(rawState?.logs) ? rawState.logs.filter((l) => l.type === 'masturbation').length : 0),
@@ -77,8 +77,8 @@ export const SexualHealthTab: React.FC<SexualHealthTabProps> = ({
   const [showAddLogModal, setShowAddLogModal] = useState(false);
 
   // Measurement Form
-  const [measureLength, setMeasureLength] = useState<string>('14.5');
-  const [measureGirth, setMeasureGirth] = useState<string>('11.0');
+  const [measureLength, setMeasureLength] = useState<string>('');
+  const [measureGirth, setMeasureGirth] = useState<string>('');
   const [measureNotes, setMeasureNotes] = useState('');
   const [showAddMeasureModal, setShowAddMeasureModal] = useState(false);
 
@@ -314,7 +314,7 @@ export const SexualHealthTab: React.FC<SexualHealthTabProps> = ({
               </span>
             </div>
             <p className="text-xs text-rose-100 mt-0.5">
-              Registro consciente, control corporal, medidas y galería privada encriptada
+              Registro privado de salud íntima, medidas y galería protegida
             </p>
           </div>
         </div>
@@ -516,7 +516,7 @@ export const SexualHealthTab: React.FC<SexualHealthTabProps> = ({
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-black text-white text-base">Control de Medidas Corporales</h3>
+                <h3 className="font-black text-white text-base">Registro de medidas íntimas masculinas</h3>
                 <p className="text-xs text-slate-400">
                   Seguimiento de longitud y grosor en cm para tu desarrollo físico
                 </p>

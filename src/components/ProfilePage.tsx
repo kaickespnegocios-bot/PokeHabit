@@ -10,7 +10,6 @@ import {
   Flame,
   Coins,
   Sparkles,
-  Shield,
 } from 'lucide-react';
 import { TrainerProfile, PartyPokemon, UserAccountProfile } from '../types';
 import { AvatarRenderer } from './AvatarRenderer';
@@ -24,7 +23,6 @@ interface ProfilePageProps {
   capturedCount: number;
   isAuthenticated: boolean;
   onEditProfile: () => void;
-  onOpenPrivacy: () => void;
   onOpenAuth: () => void;
 }
 
@@ -35,7 +33,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   capturedCount,
   isAuthenticated,
   onEditProfile,
-  onOpenPrivacy,
   onOpenAuth,
 }) => {
   const avatarConfig = profile?.avatarConfig || trainer.avatarConfig || DEFAULT_AVATAR_CONFIG;
@@ -98,19 +95,15 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
           <div className="flex flex-col gap-2">
             {isAuthenticated ? (
               <button
+                type="button"
                 onClick={() => { soundFx.playClick(); onEditProfile(); }}
                 className="px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-2xl flex items-center gap-2 cursor-pointer shadow active:scale-95"
               >
                 <Edit3 className="w-4 h-4" /> Editar perfil
               </button>
-              <button
-                onClick={() => { soundFx.playClick(); onOpenPrivacy(); }}
-                className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs rounded-2xl flex items-center gap-2 cursor-pointer shadow active:scale-95"
-              >
-                <Shield className="w-4 h-4" /> Privacidad
-              </button>
             ) : (
               <button
+                type="button"
                 onClick={() => { soundFx.playClick(); onOpenAuth(); }}
                 className="px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-2xl flex items-center gap-2 cursor-pointer shadow active:scale-95"
               >

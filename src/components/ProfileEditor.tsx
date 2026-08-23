@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, Sparkles } from 'lucide-react';
+import { X, Check, Sparkles, Shield } from 'lucide-react';
 import { AvatarConfig, TrainerProfile, UserAccountProfile } from '../types';
 import { AvatarRenderer } from './AvatarRenderer';
 import {
@@ -19,6 +19,7 @@ interface ProfileEditorProps {
     profile: Partial<UserAccountProfile>;
     trainer: Partial<TrainerProfile>;
   }) => void;
+  onOpenPrivacy: () => void;
 }
 
 export const ProfileEditor: React.FC<ProfileEditorProps> = ({
@@ -27,6 +28,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
   isOpen,
   onClose,
   onSave,
+  onOpenPrivacy,
 }) => {
   const emailUsername = (profile?.email || trainer.email || '').split('@')[0].trim();
   const defaultUsername = emailUsername || 'Entrenador';
@@ -100,6 +102,13 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
             <Field label="Nombre de usuario" value={username} onChange={setUsername} maxLength={25} />
             <Field label="Nombre del entrenador" value={trainerName} onChange={setTrainerName} maxLength={25} />
           </div>
+          <button
+            type="button"
+            onClick={() => { soundFx.playClick(); onOpenPrivacy(); }}
+            className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-black text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Shield className="w-4 h-4" /> Configuración de privacidad
+          </button>
           <div>
             <label className="text-xs font-bold text-slate-400 block mb-1">Bio</label>
             <textarea

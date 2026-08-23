@@ -1232,6 +1232,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
         isAuthenticated={isAuthenticated}
         avatarConfig={profile?.avatarConfig || state.trainer.avatarConfig}
         avatarFallback={state.trainer.avatarSprite}
+        showSexualHealth={profile?.gender === 'male'}
         onOpenAuth={() => setShowAuthModal(true)}
       />
 
@@ -1362,7 +1363,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
           <SkillTree skillStats={state.skillStats} />
         )}
 
-        {activeTab === 'sexual_health' && (
+        {activeTab === 'sexual_health' && profile?.gender === 'male' && (
           <SexualHealthTab
             state={state.sexualHealthState}
             skillStats={state.skillStats}
@@ -1379,7 +1380,6 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
             capturedCount={state.capturedPokedexIds.length}
             isAuthenticated={isAuthenticated}
             onEditProfile={() => setShowProfileEditor(true)}
-            onOpenPrivacy={() => setShowPrivacyPanel(true)}
             onOpenAuth={() => setShowAuthModal(true)}
           />
         )}
@@ -1402,6 +1402,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
           isOpen={showProfileEditor}
           onClose={() => setShowProfileEditor(false)}
           onSave={handleSaveProfile}
+          onOpenPrivacy={() => setShowPrivacyPanel(true)}
         />
       )}
 

@@ -46,6 +46,7 @@ interface NavigationProps {
   isAuthenticated?: boolean;
   avatarConfig?: AvatarConfig;
   avatarFallback?: string;
+  showSexualHealth?: boolean;
   onOpenAuth?: () => void;
 }
 
@@ -59,6 +60,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   isAuthenticated = false,
   avatarConfig,
   avatarFallback,
+  showSexualHealth = false,
   onOpenAuth,
 }) => {
   const [showMoreModal, setShowMoreModal] = useState(false);
@@ -179,6 +181,8 @@ export const Navigation: React.FC<NavigationProps> = ({
     },
   ];
 
+  const visibleTabs = tabs.filter((tab) => tab.id !== 'sexual_health' || showSexualHealth);
+
   const handleSelect = (tabId: TabKey) => {
     if (tabId === 'profile' && !isAuthenticated) {
       soundFx.playClick();
@@ -218,7 +222,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           </button>
 
           <div id="sidebar-section-menu" role="menu" className="mt-3 space-y-1 overflow-y-auto max-h-[calc(100vh-125px)]">
-            {tabs.map((tab) => (
+            {visibleTabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => handleSelect(tab.id)}
@@ -347,7 +351,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 
             {/* Grid of Sections */}
             <div className="grid grid-cols-2 gap-2.5">
-              {tabs.map((t) => {
+              {visibleTabs.map((t) => {
                 const isActive = activeTab === t.id;
                 return (
                   <button
