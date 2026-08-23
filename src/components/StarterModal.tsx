@@ -14,8 +14,18 @@ interface StarterModalProps {
 }
 
 const TRAINER_SKINS = [
-  { id: 'male', name: 'Hombre', spriteUrl: `${AVATAR_BASE_PATH}/hombre.png` },
-  { id: 'female', name: 'Mujer', spriteUrl: `${AVATAR_BASE_PATH}/mujer.png` },
+  {
+    id: 'male',
+    name: 'Hombre',
+    spriteUrl: `${AVATAR_BASE_PATH}/classic.svg`,
+    fallbackUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/red.png',
+  },
+  {
+    id: 'female',
+    name: 'Mujer',
+    spriteUrl: `${AVATAR_BASE_PATH}/trainer-f.svg`,
+    fallbackUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/leaf.png',
+  },
 ] as const;
 
 export const StarterModal: React.FC<StarterModalProps> = ({ initialTrainer, onComplete }) => {
@@ -56,7 +66,14 @@ export const StarterModal: React.FC<StarterModalProps> = ({ initialTrainer, onCo
                 <button key={skin.id} type="button" onClick={() => { setSelectedSkin(skin.id); soundFx.playClick(); }}
                   className={`relative p-3 rounded-2xl border-2 flex items-center justify-center gap-3 cursor-pointer transition-all ${selected ? 'border-red-500 bg-red-950/40 ring-2 ring-red-500/40' : 'border-slate-700 bg-slate-800 hover:border-slate-500'}`}>
                   {selected && <Check className="absolute top-2 right-2 w-4 h-4 text-emerald-400" />}
-                  <img src={skin.spriteUrl} alt={skin.name} className="w-16 h-16 object-contain pixelated" />
+                  <img
+                    src={skin.spriteUrl}
+                    alt={skin.name}
+                    className="w-16 h-16 object-contain pixelated"
+                    onError={(event) => {
+                      event.currentTarget.src = skin.fallbackUrl;
+                    }}
+                  />
                   <span className="font-black text-sm">{skin.name}</span>
                 </button>
               );
