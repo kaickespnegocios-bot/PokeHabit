@@ -78,20 +78,20 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Cumple tus hábitos diarios y tu objetivo de pasos para mantener encendida la llama de Moltres y ganar recompensas.
+            Registra tus pasos manualmente para mantener tu progreso de actividad.
           </p>
         </div>
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl shadow cursor-pointer shrink-0"
+          className="hidden"
         >
           <Plus className="w-4 h-4" />
           Añadir Hábito
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {/* LEFT: Manual step tracker */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
           <div className="flex items-center justify-between">
@@ -175,7 +175,7 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({
         </div>
 
         {/* MID & RIGHT: Habits Checklist & 100% Completion Chest */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="hidden lg:col-span-2 space-y-4">
           {/* Daily Progress & Chest */}
           <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex items-center justify-between gap-4">
             <div className="flex-1">
