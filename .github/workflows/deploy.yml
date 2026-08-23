@@ -29,7 +29,7 @@ jobs:
           node-version: 24
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build
         run: npm run build
@@ -42,7 +42,7 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
 
       - name: Support direct routes on GitHub Pages
-        run: cp dist/index.html dist/404.html
+        run: cp dist/index.html dist/404.html && touch dist/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
