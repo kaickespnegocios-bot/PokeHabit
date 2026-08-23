@@ -45,7 +45,6 @@ import { ProfilePage } from './components/ProfilePage';
 import { ProfileEditor } from './components/ProfileEditor';
 import { ImportProgressModal } from './components/ImportProgressModal';
 import { GoogleFitModal } from './components/GoogleFitModal';
-import { StarterModal } from './components/StarterModal';
 import { AudioPlayerWidget } from './components/AudioPlayerWidget';
 import { PokemonCareTab } from './components/PokemonCareTab';
 import { SexualHealthState, BerryId } from './types';
@@ -70,7 +69,6 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
 
   const [state, setState] = useState<AppState>(() => loadStoredState());
   const [activeTab, setActiveTab] = useState<TabKey>(initialTab);
-  const [showStarterModal, setShowStarterModal] = useState<boolean>(false);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [showProfileEditor, setShowProfileEditor] = useState<boolean>(false);
   const [showAvatarModal, setShowAvatarModal] = useState<boolean>(false);
@@ -151,12 +149,11 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
     soundFx.playCancel();
   }, [signOut]);
 
-  // Check if party is empty to trigger starter modal
   useEffect(() => {
-    if (state.party.length === 0 && state.pcBox.length === 0) {
-      setShowStarterModal(true);
+    if (!authLoading && !isAuthenticated) {
+      navigate('/login', { replace: true });
     }
-  }, [state.party.length, state.pcBox.length]);
+  }, [authLoading, isAuthenticated, navigate]);
 
   // Persist state changes to localStorage (guest mode backup; hybrid hook also saves)
   useEffect(() => {
@@ -164,6 +161,8 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
       saveStoredState(state);
     }
   }, [state, isAuthenticated]);
+
+  if (authLoading || !isAuthenticated) return null;
 
   // ----------------------------------------------------
   // HELPER: AWARD XP TO PARTY POKÉMON & TRAINER
@@ -262,18 +261,6 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
         },
       };
     });
-  };
-
-  // ----------------------------------------------------
-  // STARTER HANDLER
-  // ----------------------------------------------------
-  const handleSelectStarter = (starter: PartyPokemon) => {
-    setState((prev) => ({
-      ...prev,
-      party: [starter],
-      capturedPokedexIds: [...new Set([...prev.capturedPokedexIds, starter.pokemonId])],
-    }));
-    setShowStarterModal(false);
   };
 
   // ----------------------------------------------------
@@ -724,24 +711,6 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
         },
       };
     });
-  };
-
-  const handleCompleteOnboarding = (
-    trainerUpdates: Partial<TrainerProfile>,
-    starter: PartyPokemon
-  ) => {
-    setState((prev) => ({
-      ...prev,
-      trainer: {
-        ...prev.trainer,
-        ...trainerUpdates,
-      },
-      party: [starter],
-      capturedPokedexIds: [
-        ...new Set([...prev.capturedPokedexIds, starter.pokemonId]),
-      ],
-    }));
-    setShowStarterModal(false);
   };
 
   const handleUpdateTrainerProfile = (updates: Partial<TrainerProfile>) => {
@@ -1385,14 +1354,6 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
           />
         )}
       </main>
-
-      {/* Starter Selection Onboarding Modal */}
-      {showStarterModal && (
-        <StarterModal
-          initialTrainer={state.trainer}
-          onComplete={handleCompleteOnboarding}
-        />
-      )}
 
       {/* Firebase Authentication Modal */}
       {showAuthModal && (
