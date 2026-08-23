@@ -106,11 +106,12 @@ export function loadStoredState(): AppState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
+      const party = parsed.party || [];
       return {
         trainer: { ...INITIAL_TRAINER, ...parsed.trainer },
-        party: parsed.party || [],
+        party,
         pcBox: parsed.pcBox || [],
-        capturedPokedexIds: parsed.capturedPokedexIds || [4],
+        capturedPokedexIds: [...new Set([...(parsed.capturedPokedexIds || []), ...party.map((pokemon: PartyPokemon) => pokemon.pokemonId)])],
         tasks: (parsed.tasks || []).filter((item: Task) => !isSeededContent(item.id)),
         dailyHabits: [],
         subjects: parsed.subjects || INITIAL_SUBJECTS,
@@ -162,11 +163,12 @@ export function hasLocalProgress(state: AppState): boolean {
 
 export function loadStateForUser(cloudState: AppState | null | undefined): AppState {
   if (cloudState) {
+    const party = cloudState.party || [];
     return {
       trainer: { ...INITIAL_TRAINER, ...cloudState.trainer },
-      party: cloudState.party || [],
+      party,
       pcBox: cloudState.pcBox || [],
-      capturedPokedexIds: cloudState.capturedPokedexIds || [4],
+      capturedPokedexIds: [...new Set([...(cloudState.capturedPokedexIds || []), ...party.map((pokemon) => pokemon.pokemonId)])],
       tasks: (cloudState.tasks || []).filter((item) => !isSeededContent(item.id)),
       dailyHabits: [],
       subjects: cloudState.subjects || INITIAL_SUBJECTS,

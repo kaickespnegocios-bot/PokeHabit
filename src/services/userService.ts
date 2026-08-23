@@ -144,7 +144,7 @@ export function buildPublicProfile(
         educationalXp: gameState.skillStats?.sexualHealth?.xp ?? 0,
       };
     }
-    if (ps.bodyMeasurement && profile.gender === 'male') {
+    if (ps.bodyMeasurement) {
       const measurement = gameState.sexualHealthState?.lastMeasurementCm;
       if (typeof measurement === 'number' && measurement > 0) {
         publicData.bodyMeasurementCm = measurement;

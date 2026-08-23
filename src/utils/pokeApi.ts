@@ -1,6 +1,7 @@
 import { PartyPokemon, PokedexEntry, PokemonType } from '../types';
 
 const CACHE_PREFIX = 'pokeapi_cache_';
+const POKEDEX_CATALOG_CACHE_KEY = `${CACHE_PREFIX}national_catalog_v1`;
 
 export interface PokeApiResponse {
   id: number;
@@ -684,6 +685,50 @@ export async function fetchPokemonData(idOrName: string | number): Promise<Poked
   } catch {
     // Return local catalog match if available
     return localMatch || null;
+  }
+}
+
+export async function fetchPokedexCatalog(): Promise<PokedexEntry[]> {
+  try {
+    const cached = localStorage.getItem(POKEDEX_CATALOG_CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached) as PokedexEntry[];
+      if (parsed.length >= 1025) return parsed;
+    }
+  } catch {
+    // Ignore invalid cache and refresh it from PokeAPI.
+  }
+
+  try {
+    const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1025&offset=0');
+    if (!response.ok) throw new Error('PokeAPI catalog response not ok');
+    const data = (await response.json()) as { results: { name: string; url: string }[] };
+    const catalog = data.results.map(({ name, url }) => {
+      const id = Number(url.split('/').filter(Boolean).pop());
+      const localEntry = LOCAL_POKEDEX_DATA.find((entry) => entry.id === id);
+      const displayName = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
+      return {
+        id,
+        name: displayName,
+        types: localEntry?.types || ['normal'],
+        sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+        officialArtwork: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
+        isLegendary: localEntry?.isLegendary || false,
+        isMythical: localEntry?.isMythical || false,
+        captured: false,
+        height: localEntry?.height || 0,
+        weight: localEntry?.weight || 0,
+        description: localEntry?.description || `${displayName} registrado en la Pokédex.`,
+      };
+    });
+    try {
+      localStorage.setItem(POKEDEX_CATALOG_CACHE_KEY, JSON.stringify(catalog));
+    } catch {
+      // Ignore storage limits.
+    }
+    return catalog;
+  } catch {
+    return LOCAL_POKEDEX_DATA;
   }
 }
 

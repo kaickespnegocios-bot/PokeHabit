@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PokedexEntry, PokemonType } from '../types';
 import { POKEMON_TYPES } from '../data/pokemonTypes';
+import { fetchPokedexCatalog } from '../utils/pokeApi';
 import { Search, Filter, Sparkles, BookOpen, Crown, X, Info } from 'lucide-react';
 import { soundFx } from '../utils/audio';
 
@@ -13,15 +14,26 @@ export const PokedexView: React.FC<PokedexViewProps> = ({
   pokedex,
   capturedIds,
 }) => {
+  const [catalog, setCatalog] = useState(pokedex);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'captured' | 'missing'>('all');
   const [selectedEntry, setSelectedEntry] = useState<PokedexEntry | null>(null);
 
-  const capturedCount = pokedex.filter((p) => capturedIds.includes(p.id)).length;
-  const totalCount = pokedex.length;
+  useEffect(() => {
+    let cancelled = false;
+    fetchPokedexCatalog().then((entries) => {
+      if (!cancelled) setCatalog(entries);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [pokedex]);
 
-  const filteredPokedex = pokedex.filter((entry) => {
+  const capturedCount = catalog.filter((p) => capturedIds.includes(p.id)).length;
+  const totalCount = catalog.length;
+
+  const filteredPokedex = catalog.filter((entry) => {
     const isCaptured = capturedIds.includes(entry.id);
     if (filterStatus === 'captured' && !isCaptured) return false;
     if (filterStatus === 'missing' && isCaptured) return false;

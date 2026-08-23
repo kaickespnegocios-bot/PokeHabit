@@ -1240,7 +1240,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
         isAuthenticated={isAuthenticated}
         avatarConfig={profile?.avatarConfig || state.trainer.avatarConfig}
         avatarFallback={state.trainer.avatarSprite}
-        showSexualHealth={profile?.gender === 'male'}
+        showSexualHealth={isAuthenticated}
         onOpenAuth={() => setShowAuthModal(true)}
       />
 
@@ -1372,7 +1372,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
           <SkillTree skillStats={state.skillStats} />
         )}
 
-        {activeTab === 'sexual_health' && profile?.gender === 'male' && (
+        {activeTab === 'sexual_health' && isAuthenticated && (
           <SexualHealthTab
             state={state.sexualHealthState}
             skillStats={state.skillStats}
