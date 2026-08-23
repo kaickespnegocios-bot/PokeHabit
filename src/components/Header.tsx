@@ -114,11 +114,12 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={() => { onOpenGoogleFitModal?.(); soundFx.playClick(); }}
             className="flex items-center gap-1 sm:gap-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 px-2 sm:px-3 py-1.5 rounded-2xl cursor-pointer transition-all active:scale-95"
-            title="Pasos Hoy"
+            title="Pasos Hoy • Clic para vincular Google Fit"
           >
             <Footprints className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
             <span className="font-black text-[10px] sm:text-xs text-emerald-100 whitespace-nowrap">
               {trainer.stepsToday.toLocaleString()}
+              <span className="font-bold text-[10px] sm:text-xs text-emerald-300/80 hidden sm:inline"> pasos</span>
             </span>
             {fitConnected && (
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full shrink-0 hidden sm:block" />
@@ -127,7 +128,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <div
             className="flex items-center gap-1 sm:gap-1.5 bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2 sm:px-3 py-1.5 rounded-2xl"
-            title="Poké-Monedas"
+            title="Poké-Monedas Disponibles"
           >
             <Coins className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
             <span className="font-black text-[10px] sm:text-xs text-amber-100 whitespace-nowrap">
