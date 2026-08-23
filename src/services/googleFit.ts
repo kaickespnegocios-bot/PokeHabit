@@ -1,5 +1,6 @@
 const GOOGLE_FIT_SCOPE = 'https://www.googleapis.com/auth/fitness.activity.read';
 const GOOGLE_IDENTITY_SCRIPT = 'https://accounts.google.com/gsi/client';
+const GOOGLE_CLIENT_ID_FALLBACK = '620227432812-4bhg5h8jegogdcdq2pf45ecjn6umjumo.apps.googleusercontent.com';
 
 type GoogleTokenClient = {
   requestAccessToken: (options?: { prompt?: string }) => void;
@@ -45,7 +46,7 @@ function loadGoogleIdentityScript(): Promise<void> {
 }
 
 export async function connectGoogleFit(): Promise<void> {
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+  const clientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) || GOOGLE_CLIENT_ID_FALLBACK;
   if (!clientId) {
     throw new Error('Configura VITE_GOOGLE_CLIENT_ID para vincular Google Fit.');
   }
