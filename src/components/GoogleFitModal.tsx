@@ -17,6 +17,7 @@ interface GoogleFitModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddSteps: (steps: number) => void;
+  onGoogleFitConnected: () => void;
 }
 
 export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
@@ -24,6 +25,7 @@ export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
   isOpen,
   onClose,
   onAddSteps,
+  onGoogleFitConnected,
 }) => {
   const [manualStepsToAdd, setManualStepsToAdd] = useState(1000);
   const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
@@ -46,6 +48,7 @@ export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
       const syncedSteps = await readTodaySteps();
       const additionalSteps = Math.max(0, syncedSteps - trainer.stepsToday);
       if (additionalSteps > 0) onAddSteps(additionalSteps);
+      onGoogleFitConnected();
       setSyncFeedback(`Google Fit ha registrado ${syncedSteps.toLocaleString()} pasos hoy.`);
     } catch (error) {
       setSyncFeedback(error instanceof Error ? error.message : 'No se pudo vincular Google Fit.');
@@ -68,7 +71,7 @@ export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
               <p className="text-xs text-emerald-100">Registra tu actividad sin sincronizaciones automáticas</p>
             </div>
           </div>
-          <button
+          {!trainer.isGoogleFitConnected && <button
             onClick={() => {
               soundFx.playCancel();
               onClose();
@@ -76,7 +79,7 @@ export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
             className="p-1.5 bg-black/20 hover:bg-black/40 rounded-xl text-white/80 hover:text-white cursor-pointer"
           >
             <X className="w-5 h-5" />
-          </button>
+          </button>}
         </div>
 
         {/* Content */}
@@ -152,7 +155,7 @@ export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
           </div>
 
           {/* Registro manual de pasos */}
-          <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4 space-y-3">
+          {!trainer.isGoogleFitConnected && <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4 space-y-3">
             <h4 className="text-xs font-black uppercase text-slate-300 tracking-wider">
               Añadir pasos:
             </h4>
@@ -182,7 +185,7 @@ export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
                 Añadir
               </button>
             </div>
-          </div>
+          </div>}
         </div>
       </div>
     </div>

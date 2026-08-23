@@ -43,6 +43,7 @@ import { TrainerCustomizerModal } from './components/TrainerCustomizerModal';
 import { AuthModal } from './components/AuthModal';
 import { ProfilePage } from './components/ProfilePage';
 import { ProfileEditor } from './components/ProfileEditor';
+import { PrivacySettingsPanel } from './components/PrivacySettingsPanel';
 import { ImportProgressModal } from './components/ImportProgressModal';
 import { GoogleFitModal } from './components/GoogleFitModal';
 import { AudioPlayerWidget } from './components/AudioPlayerWidget';
@@ -71,6 +72,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
   const [activeTab, setActiveTab] = useState<TabKey>(initialTab);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [showProfileEditor, setShowProfileEditor] = useState<boolean>(false);
+  const [showPrivacyPanel, setShowPrivacyPanel] = useState<boolean>(false);
   const [showAvatarModal, setShowAvatarModal] = useState<boolean>(false);
   const [showFitModal, setShowFitModal] = useState<boolean>(false);
   const [importLoading, setImportLoading] = useState(false);
@@ -539,7 +541,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
         discreetMode: false,
         logs: [],
         gallery: [],
-        lastMeasurementCm: 14.5,
+        lastMeasurementCm: undefined,
         totalMasturbationCount: 0,
       };
       const nextState =
@@ -1377,6 +1379,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
             capturedCount={state.capturedPokedexIds.length}
             isAuthenticated={isAuthenticated}
             onEditProfile={() => setShowProfileEditor(true)}
+            onOpenPrivacy={() => setShowPrivacyPanel(true)}
             onOpenAuth={() => setShowAuthModal(true)}
           />
         )}
@@ -1399,6 +1402,17 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
           isOpen={showProfileEditor}
           onClose={() => setShowProfileEditor(false)}
           onSave={handleSaveProfile}
+        />
+      )}
+
+      {showPrivacyPanel && profile && user && (
+        <PrivacySettingsPanel
+          profile={profile}
+          isOpen={showPrivacyPanel}
+          onClose={() => setShowPrivacyPanel(false)}
+          onSave={async (settings) => {
+            await updateProfile(settings);
+          }}
         />
       )}
 
@@ -1425,7 +1439,14 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
       {showFitModal && (
         <GoogleFitModal
           trainer={state.trainer}
+          isOpen={showFitModal}
           onAddSteps={handleAddSteps}
+          onGoogleFitConnected={() => {
+            setState((prev) => ({
+              ...prev,
+              trainer: { ...prev.trainer, isGoogleFitConnected: true },
+            }));
+          }}
           onClose={() => setShowFitModal(false)}
         />
       )}

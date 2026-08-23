@@ -38,6 +38,7 @@ const PRIVACY_LABELS: { key: PrivacyKey; label: string; description: string }[] 
   { key: 'steps', label: 'Mostrar pasos', description: 'Pasos de hoy' },
   { key: 'studyStats', label: 'Mostrar estadísticas de estudio', description: 'Pomodoros y asignaturas' },
   { key: 'healthStats', label: 'Mostrar estadísticas de salud', description: 'Progreso educativo de salud' },
+  { key: 'bodyMeasurement', label: 'Mostrar medida corporal', description: 'Última medida registrada' },
 ];
 
 export const PrivacySettingsPanel: React.FC<PrivacySettingsPanelProps> = ({

@@ -178,16 +178,21 @@ export const PokeMart: React.FC<PokeMartProps> = ({
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <span className="relative flex items-center justify-center w-12 h-12 shrink-0">
-                        <span className="absolute text-3xl">{item.icon}</span>
-                        {getItemSprite(item.id) && (
-                          <img
-                            src={getItemSprite(item.id) || undefined}
-                            alt={item.name}
-                            className="relative z-10 w-12 h-12 object-contain pixelated"
-                            onError={(event) => {
-                              event.currentTarget.style.display = 'none';
-                            }}
-                          />
+                        {getItemSprite(item.id) ? (
+                          <>
+                            <img
+                              src={getItemSprite(item.id) || undefined}
+                              alt={item.name}
+                              className="w-12 h-12 object-contain pixelated"
+                              onError={(event) => {
+                                event.currentTarget.style.display = 'none';
+                                event.currentTarget.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                            <span className="hidden text-3xl" aria-hidden="true">{item.icon}</span>
+                          </>
+                        ) : (
+                          <span className="text-3xl" aria-hidden="true">{item.icon}</span>
                         )}
                       </span>
                       {ownedQty > 0 && (

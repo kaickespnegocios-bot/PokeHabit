@@ -697,29 +697,10 @@ export const INITIAL_SEXUAL_HEALTH: import('../types').SexualHealthState = {
   pinCode: '',
   isUnlocked: true,
   discreetMode: false,
-  logs: [
-    {
-      id: 'sh_log_1',
-      date: new Date(Date.now() - 86400000 * 2).toISOString().split('T')[0],
-      timestamp: Date.now() - 86400000 * 2,
-      type: 'masturbation',
-      mood: 'bien',
-      energyLevel: 4,
-      notes: 'Sesión tranquila y consciente',
-    },
-    {
-      id: 'sh_log_2',
-      date: new Date(Date.now() - 86400000 * 7).toISOString().split('T')[0],
-      timestamp: Date.now() - 86400000 * 7,
-      type: 'measurement',
-      measurementCm: 14.5,
-      measurementGirthCm: 11.2,
-      notes: 'Medición mensual de control y desarrollo corporal',
-    },
-  ],
+  logs: [],
   gallery: [],
-  lastMeasurementCm: 14.5,
-  totalMasturbationCount: 1,
+  lastMeasurementCm: undefined,
+  totalMasturbationCount: 0,
 };
 
 export const INITIAL_BERRY_GARDEN: import('../types').BerryGardenState = {

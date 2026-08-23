@@ -303,6 +303,7 @@ export interface PrivacySettings {
   steps: boolean;
   studyStats: boolean;
   healthStats: boolean;
+  bodyMeasurement: boolean;
 }
 
 export const DEFAULT_PRIVACY_SETTINGS: PrivacySettings = {
@@ -316,6 +317,7 @@ export const DEFAULT_PRIVACY_SETTINGS: PrivacySettings = {
   steps: false,
   studyStats: false,
   healthStats: false,
+  bodyMeasurement: false,
 };
 
 /** Datos expuestos en perfil público — nunca incluir email, uid, gender ni salud privada */
@@ -333,6 +335,8 @@ export interface PublicProfileData {
   tasksCompleted?: number;
   steps?: number;
   studyStats?: { pomodorosDone: number; subjectsCount: number };
+  healthStats?: { educationalLevel: number; educationalXp: number };
+  bodyMeasurementCm?: number;
 }
 
 export interface UserAccountProfile {

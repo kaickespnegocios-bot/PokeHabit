@@ -98,7 +98,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     },
     {
       id: 'tasks',
-      label: 'Hábitos',
+      label: 'Hábitos diarios',
       icon: <CheckSquare className="w-4 h-4" />,
       badge: pendingTasksCount > 0 ? pendingTasksCount : undefined,
       category: 'Productividad',

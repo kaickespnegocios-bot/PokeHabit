@@ -62,7 +62,8 @@ export const PublicProfile: React.FC<PublicProfileProps> = ({
     data.tasksCompleted !== undefined ||
     data.steps !== undefined ||
     data.studyStats !== undefined ||
-    data.healthStats !== undefined;
+    data.healthStats !== undefined ||
+    data.bodyMeasurementCm !== undefined;
 
   return (
     <div className="min-h-screen bg-slate-950 text-white py-8 px-4">
@@ -123,6 +124,13 @@ export const PublicProfile: React.FC<PublicProfileProps> = ({
                 icon={<Heart className="w-5 h-5 text-rose-400" />}
                 label="Salud educativa"
                 value={`Nv. ${data.healthStats.educationalLevel}`}
+              />
+            )}
+            {data.bodyMeasurementCm !== undefined && (
+              <StatCard
+                icon={<Heart className="w-5 h-5 text-rose-400" />}
+                label="Medida corporal"
+                value={`${data.bodyMeasurementCm} cm`}
               />
             )}
           </div>
