@@ -46,6 +46,7 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const LOCAL_IMPORT_DECISION_PREFIX = 'poke_quest_import_decision_';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -81,6 +82,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setIsLoading(true);
       try {
+        const importDecisionKey = `${LOCAL_IMPORT_DECISION_PREFIX}${firebaseUser.uid}`;
+        const importDecision = localStorage.getItem(importDecisionKey);
         const data = await loadUserData(firebaseUser.uid);
         const username =
           firebaseUser.displayName ||
@@ -91,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const localState = loadStoredState();
           const hasProgress = hasLocalProgress(localState);
 
-          if (hasProgress) {
+          if (hasProgress && importDecision !== 'dismissed') {
             setLocalSnapshotForImport(localState);
             setPendingImport(true);
             await createInitialUserDocument(
@@ -113,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         } else {
           setProfile(data.profile);
-          if (!data.gameState && hasLocalProgress(loadStoredState())) {
+          if (!data.gameState && hasLocalProgress(loadStoredState()) && importDecision !== 'dismissed') {
             setLocalSnapshotForImport(loadStoredState());
             setPendingImport(true);
           }
@@ -173,6 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { saveUserData } = await import('../services/userService');
     await saveUserData(user.uid, imported);
+    localStorage.setItem(`${LOCAL_IMPORT_DECISION_PREFIX}${user.uid}`, 'imported');
     setPendingImport(false);
     setLocalSnapshotForImport(null);
     return imported;
@@ -180,6 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const startFreshOnCloud = useCallback(async () => {
     if (!user) return;
+    localStorage.setItem(`${LOCAL_IMPORT_DECISION_PREFIX}${user.uid}`, 'dismissed');
     setPendingImport(false);
     setLocalSnapshotForImport(null);
   }, [user]);
@@ -197,8 +202,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const dismissImportPrompt = useCallback(() => {
+    if (user) localStorage.setItem(`${LOCAL_IMPORT_DECISION_PREFIX}${user.uid}`, 'dismissed');
     setPendingImport(false);
-  }, []);
+  }, [user]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
