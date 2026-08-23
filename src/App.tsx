@@ -724,20 +724,6 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
     soundFx.playLevelUp();
   };
 
-  const handleSyncGoogleFit = (steps: number) => {
-    setState((prev) => ({
-      ...prev,
-      trainer: {
-        ...prev.trainer,
-        stepsToday: steps,
-        googleFitConnected: true,
-        lastSyncTime: 'Ahora mismo',
-      },
-    }));
-    soundFx.playVictory();
-    confetti({ particleCount: 80, spread: 80 });
-  };
-
   // ----------------------------------------------------
   // PARTY & PC MANAGEMENT
   // ----------------------------------------------------
@@ -982,6 +968,12 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
   };
 
   const handleClaimDailyBonus = () => {
+    const today = new Date().toISOString().split('T')[0];
+    if (state.trainer.lastDailyBonusDate === today) return;
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayKey = yesterday.toISOString().split('T')[0];
     soundFx.playLevelUp();
     confetti({ particleCount: 60, spread: 80 });
     setState((prev) => ({
@@ -989,7 +981,18 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
       trainer: {
         ...prev.trainer,
         gold: prev.trainer.gold + 100,
-        dailyStreak: prev.trainer.dailyStreak + 1,
+        dailyStreak:
+          prev.trainer.lastActiveDate === today || prev.trainer.lastActiveDate === yesterdayKey
+            ? Math.max(1, prev.trainer.dailyStreak + (prev.trainer.lastActiveDate === today ? 0 : 1))
+            : 1,
+        bestStreak: Math.max(
+          prev.trainer.bestStreak,
+          prev.trainer.lastActiveDate === today || prev.trainer.lastActiveDate === yesterdayKey
+            ? Math.max(1, prev.trainer.dailyStreak + (prev.trainer.lastActiveDate === today ? 0 : 1))
+            : 1
+        ),
+        lastActiveDate: today,
+        lastDailyBonusDate: today,
       },
     }));
     awardXpToParty(150, undefined, 100);
@@ -1398,7 +1401,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
       {showFitModal && (
         <GoogleFitModal
           trainer={state.trainer}
-          onSyncSteps={handleSyncGoogleFit}
+          onAddSteps={handleAddSteps}
           onClose={() => setShowFitModal(false)}
         />
       )}

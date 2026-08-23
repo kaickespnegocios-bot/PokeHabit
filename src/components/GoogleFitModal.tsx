@@ -2,15 +2,12 @@ import React, { useState } from 'react';
 import { TrainerProfile } from '../types';
 import {
   Footprints,
-  Activity,
   CheckCircle2,
-  RefreshCw,
   X,
   Flame,
   Heart,
   TrendingUp,
   Sparkles,
-  Link2,
 } from 'lucide-react';
 import { soundFx } from '../utils/audio';
 
@@ -18,57 +15,23 @@ interface GoogleFitModalProps {
   trainer: TrainerProfile;
   isOpen: boolean;
   onClose: () => void;
-  onSyncSteps: (newSteps: number) => void;
-  onToggleConnection: (connected: boolean, email?: string) => void;
+  onAddSteps: (steps: number) => void;
 }
 
 export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
   trainer,
   isOpen,
   onClose,
-  onSyncSteps,
-  onToggleConnection,
+  onAddSteps,
 }) => {
-  const [isSyncing, setIsSyncing] = useState(false);
   const [manualStepsToAdd, setManualStepsToAdd] = useState(1000);
   const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const isConnected = !!trainer.isGoogleFitConnected;
-
-  const handleConnectGoogle = () => {
-    soundFx.playLevelUp();
-    setIsSyncing(true);
-    setTimeout(() => {
-      onToggleConnection(true, 'ikercito.gonser@gmail.com');
-      setIsSyncing(false);
-      setSyncFeedback('¡Cuenta de Google Fit vinculada con éxito!');
-      setTimeout(() => setSyncFeedback(null), 3000);
-    }, 800);
-  };
-
-  const handleDisconnect = () => {
-    soundFx.playCancel();
-    onToggleConnection(false, '');
-  };
-
-  const handleSyncNow = () => {
-    soundFx.playCaptureSuccess();
-    setIsSyncing(true);
-    setTimeout(() => {
-      // Add realistic walk step batch
-      const randomAdd = Math.floor(Math.random() * 800) + 400;
-      onSyncSteps(trainer.stepsToday + randomAdd);
-      setIsSyncing(false);
-      setSyncFeedback(`✓ Sincronizados +${randomAdd} pasos desde Google Fit API`);
-      setTimeout(() => setSyncFeedback(null), 3500);
-    }, 900);
-  };
-
   const handleManualAdd = () => {
     soundFx.playSelect();
-    onSyncSteps(trainer.stepsToday + manualStepsToAdd);
+    onAddSteps(manualStepsToAdd);
     setSyncFeedback(`✓ Añadidos +${manualStepsToAdd.toLocaleString()} pasos manualmente`);
     setTimeout(() => setSyncFeedback(null), 3000);
   };
@@ -83,8 +46,8 @@ export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
               <Footprints className="w-5 h-5 text-white animate-bounce" />
             </div>
             <div>
-              <h3 className="font-black text-lg text-white">Google Fit & Salud Web</h3>
-              <p className="text-xs text-emerald-100">Sincronización de actividad y pasos</p>
+              <h3 className="font-black text-lg text-white">Pasos manuales</h3>
+              <p className="text-xs text-emerald-100">Registra tu actividad sin sincronizaciones automáticas</p>
             </div>
           </div>
           <button
@@ -100,47 +63,6 @@ export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
 
         {/* Content */}
         <div className="p-4 sm:p-5 space-y-4 max-h-[75vh] overflow-y-auto">
-          {/* Status Banner */}
-          <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div
-                className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
-                  isConnected ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-400'
-                }`}
-              >
-                <Activity className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 font-semibold">Estado de Vinculación</p>
-                <p className="text-sm font-black text-white">
-                  {isConnected ? 'Conectado a Google Fit' : 'Desconectado'}
-                </p>
-                {isConnected && (
-                  <p className="text-[10px] text-emerald-400 font-mono">
-                    {trainer.googleFitEmail || 'Cuenta activa'}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {isConnected ? (
-              <button
-                onClick={handleDisconnect}
-                className="text-[11px] font-bold text-red-400 hover:text-red-300 bg-red-950/40 border border-red-800/60 px-2.5 py-1 rounded-xl cursor-pointer"
-              >
-                Desvincular
-              </button>
-            ) : (
-              <button
-                onClick={handleConnectGoogle}
-                disabled={isSyncing}
-                className="text-xs font-black bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl flex items-center gap-1.5 cursor-pointer shadow active:scale-95 transition-transform"
-              >
-                <Link2 className="w-3.5 h-3.5" /> Conectar
-              </button>
-            )}
-          </div>
-
           {/* Feedback message */}
           {syncFeedback && (
             <div className="bg-emerald-950/80 border border-emerald-500/60 text-emerald-200 text-xs font-bold p-3 rounded-2xl animate-fadeIn flex items-center gap-2">
@@ -202,20 +124,11 @@ export const GoogleFitModal: React.FC<GoogleFitModalProps> = ({
             </div>
           </div>
 
-          {/* Sincronización Manual & Simulador de Sensor */}
+          {/* Registro manual de pasos */}
           <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4 space-y-3">
             <h4 className="text-xs font-black uppercase text-slate-300 tracking-wider">
-              Acciones de Sincronización:
+              Añadir pasos:
             </h4>
-
-            <button
-              onClick={handleSyncNow}
-              disabled={isSyncing}
-              className="w-full py-2.5 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer shadow active:scale-95 transition-all"
-            >
-              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-              {isSyncing ? 'Consultando Google Fit API...' : 'Sincronizar Pasos Ahora'}
-            </button>
 
             {/* Quick Step Injector */}
             <div className="flex items-center gap-2 pt-1">

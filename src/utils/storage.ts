@@ -17,12 +17,9 @@ import {
 import {
   INITIAL_ACHIEVEMENTS,
   INITIAL_DAILY_HABITS,
-  INITIAL_EXAM_BOSSES,
-  INITIAL_FLASHCARDS,
   INITIAL_SHOP_ITEMS,
   INITIAL_SKILL_STATS,
   INITIAL_SUBJECTS,
-  INITIAL_TASKS,
   INITIAL_TRAINER,
   INITIAL_SEXUAL_HEALTH,
   INITIAL_BERRY_GARDEN,
@@ -47,7 +44,7 @@ export interface AppState {
   achievements: Achievement[];
 }
 
-const STORAGE_KEY = 'poke_quest_state_v3';
+const STORAGE_KEY = 'poke_quest_state_v4';
 
 export function loadStoredState(): AppState {
   try {
@@ -59,11 +56,10 @@ export function loadStoredState(): AppState {
         party: parsed.party || [],
         pcBox: parsed.pcBox || [],
         capturedPokedexIds: parsed.capturedPokedexIds || [4],
-        tasks: parsed.tasks || INITIAL_TASKS,
+        tasks: parsed.tasks || [],
         dailyHabits: parsed.dailyHabits || INITIAL_DAILY_HABITS,
         subjects: parsed.subjects || INITIAL_SUBJECTS,
-        examBosses: parsed.examBosses || INITIAL_EXAM_BOSSES,
-        flashcards: parsed.flashcards || INITIAL_FLASHCARDS,
+        examBosses: parsed.examBosses || [],
         skillStats: { ...INITIAL_SKILL_STATS, ...(parsed.skillStats || {}) },
         sexualHealthState: { ...INITIAL_SEXUAL_HEALTH, ...(parsed.sexualHealthState || {}) },
         berryGarden: { ...INITIAL_BERRY_GARDEN, ...(parsed.berryGarden || {}) },
@@ -81,11 +77,11 @@ export function loadStoredState(): AppState {
     party: [],
     pcBox: [],
     capturedPokedexIds: [4],
-    tasks: INITIAL_TASKS,
+    tasks: [],
     dailyHabits: INITIAL_DAILY_HABITS,
     subjects: INITIAL_SUBJECTS,
-    examBosses: INITIAL_EXAM_BOSSES,
-    flashcards: INITIAL_FLASHCARDS,
+    examBosses: [],
+    flashcards: [],
     skillStats: INITIAL_SKILL_STATS,
     sexualHealthState: INITIAL_SEXUAL_HEALTH,
     berryGarden: INITIAL_BERRY_GARDEN,
@@ -131,11 +127,11 @@ export function loadStateForUser(cloudState: AppState | null | undefined): AppSt
       party: cloudState.party || [],
       pcBox: cloudState.pcBox || [],
       capturedPokedexIds: cloudState.capturedPokedexIds || [4],
-      tasks: cloudState.tasks || INITIAL_TASKS,
+      tasks: cloudState.tasks || [],
       dailyHabits: cloudState.dailyHabits || INITIAL_DAILY_HABITS,
       subjects: cloudState.subjects || INITIAL_SUBJECTS,
-      examBosses: cloudState.examBosses || INITIAL_EXAM_BOSSES,
-      flashcards: cloudState.flashcards || INITIAL_FLASHCARDS,
+      examBosses: cloudState.examBosses || [],
+      flashcards: cloudState.flashcards || [],
       skillStats: { ...INITIAL_SKILL_STATS, ...(cloudState.skillStats || {}) },
       sexualHealthState: { ...INITIAL_SEXUAL_HEALTH, ...(cloudState.sexualHealthState || {}) },
       berryGarden: { ...INITIAL_BERRY_GARDEN, ...(cloudState.berryGarden || {}) },

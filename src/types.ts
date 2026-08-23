@@ -370,6 +370,7 @@ export interface TrainerProfile {
   dailyStreak: number;
   bestStreak: number;
   lastActiveDate: string; // YYYY-MM-DD
+  lastDailyBonusDate?: string; // YYYY-MM-DD
   stepsToday: number;
   stepGoal: number;
   healthConnectGranted: boolean;

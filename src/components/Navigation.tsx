@@ -15,6 +15,7 @@ import {
   X,
   User,
   LogIn,
+  ChevronDown,
 } from 'lucide-react';
 import { soundFx } from '../utils/audio';
 import { AvatarRenderer } from './AvatarRenderer';
@@ -61,6 +62,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   onOpenAuth,
 }) => {
   const [showMoreModal, setShowMoreModal] = useState(false);
+  const [showDesktopMenu, setShowDesktopMenu] = useState(false);
 
   const tabs: {
     id: TabKey;
@@ -168,6 +170,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     soundFx.playClick();
     onTabChange(tabId);
     setShowMoreModal(false);
+    setShowDesktopMenu(false);
   };
 
   // Primary mobile tabs
@@ -176,37 +179,42 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   return (
     <>
-      {/* Desktop / Tablet Top Horizontal Scroll Tab Bar */}
-      <nav className="bg-slate-900 border-b border-slate-800 sticky top-[53px] z-30 shadow">
-        <div className="max-w-7xl mx-auto px-2 overflow-x-auto no-scrollbar">
-          <div className="flex items-center space-x-1 py-1.5 min-w-max">
-            {tabs.map((t) => {
-              const isActive = activeTab === t.id;
-              return (
+      {/* Desktop / Tablet Section Dropdown */}
+      <nav className="bg-slate-900 border-b border-slate-800 sticky top-[53px] z-30 shadow hidden sm:block">
+        <div className="max-w-7xl mx-auto px-3 py-2 relative">
+          <button
+            onClick={() => {
+              soundFx.playClick();
+              setShowDesktopMenu((open) => !open);
+            }}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-bold cursor-pointer hover:bg-slate-700 transition-colors"
+          >
+            {tabs.find((tab) => tab.id === activeTab)?.icon}
+            <span>{tabs.find((tab) => tab.id === activeTab)?.label || 'Secciones'}</span>
+            <ChevronDown className={`w-4 h-4 transition-transform ${showDesktopMenu ? 'rotate-180' : ''}`} />
+          </button>
+
+          {showDesktopMenu && (
+            <div className="absolute left-3 top-full mt-1 w-64 max-h-[70vh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-2 animate-fadeIn">
+              {tabs.map((tab) => (
                 <button
-                  key={t.id}
-                  onClick={() => handleSelect(t.id)}
-                  className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 touch-manipulation min-h-[40px] ${
-                    isActive
-                      ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
-                  } ${
-                    t.highlight && !isActive
-                      ? 'border border-emerald-500/40 text-emerald-300 bg-emerald-950/30'
-                      : ''
+                  key={tab.id}
+                  onClick={() => handleSelect(tab.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold cursor-pointer transition-colors ${
+                    activeTab === tab.id ? 'bg-red-600 text-white' : 'text-slate-200 hover:bg-slate-800'
                   }`}
                 >
-                  {t.icon}
-                  <span>{t.label}</span>
-                  {t.badge !== undefined && (
-                    <span className="bg-amber-400 text-slate-900 text-[10px] font-black px-1.5 py-0.2 rounded-full shadow-sm animate-pulse">
-                      {t.badge}
+                  {tab.icon}
+                  <span className="flex-1">{tab.label}</span>
+                  {tab.badge !== undefined && (
+                    <span className="bg-amber-400 text-slate-900 text-[10px] font-black px-1.5 py-0.5 rounded-full">
+                      {tab.badge}
                     </span>
                   )}
                 </button>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </nav>
 
