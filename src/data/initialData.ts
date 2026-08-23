@@ -239,7 +239,7 @@ export const INITIAL_TASKS: Task[] = [
 export const INITIAL_DAILY_HABITS: DailyHabit[] = [
   {
     id: 'habit_steps',
-    title: 'Completar objetivo diario de 8.000 pasos (Health Connect)',
+    title: 'Completar objetivo diario de 8.000 pasos',
     type: 'health_connect_steps',
     targetSteps: 8000,
     completed: false,
@@ -746,7 +746,7 @@ export const INITIAL_TRAINER: TrainerProfile = {
   email: 'red@pokeclub.com',
   level: 1,
   gold: 150,
-  avatarSprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/red.png',
+  avatarSprite: `${import.meta.env.BASE_URL}assets/avatars/base/hombre.png`,
   trainerTitle: 'Aspirante a Campeón',
   trainerClass: 'Entrenador Pokémon',
   favoriteType: 'fire',

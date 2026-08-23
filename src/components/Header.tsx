@@ -117,7 +117,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={() => { onOpenGoogleFitModal?.(); soundFx.playClick(); }}
             className="flex items-center gap-1 sm:gap-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 px-2 sm:px-3 py-1.5 rounded-2xl cursor-pointer transition-all active:scale-95"
-            title="Pasos Hoy • Clic para vincular Google Fit"
+            title="Pasos Hoy • Clic para añadir manualmente"
           >
             <Footprints className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
             <span className="font-black text-[10px] sm:text-xs text-emerald-100 whitespace-nowrap">

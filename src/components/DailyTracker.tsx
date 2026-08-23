@@ -71,7 +71,7 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-black text-white">Daily Tracker & Pasos Health Connect</h2>
+            <h2 className="text-xl font-black text-white">Daily Tracker & Pasos</h2>
             <span className="bg-orange-500/20 text-orange-300 font-black text-xs px-2.5 py-0.5 rounded-full border border-orange-500/40 flex items-center gap-1">
               <Flame className="w-3.5 h-3.5 fill-current text-orange-400" />
               Racha de {trainer.dailyStreak} días
@@ -92,7 +92,7 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* LEFT: Health Connect Step Widget & Walk Simulator */}
+        {/* LEFT: Manual step tracker */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -100,9 +100,9 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({
                 <Footprints className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-white text-sm">Health Connect API</h3>
+                <h3 className="font-bold text-white text-sm">Registro manual</h3>
                 <span className="text-[11px] text-emerald-400 font-semibold">
-                  Sincronización activa
+                  Añade tus pasos cuando quieras
                 </span>
               </div>
             </div>
@@ -259,7 +259,7 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({
                         </span>
                         {isStepHabit && (
                           <span className="text-[10px] text-emerald-400 font-bold">
-                            (Automático con Health Connect)
+                            (Registro manual)
                           </span>
                         )}
                       </div>

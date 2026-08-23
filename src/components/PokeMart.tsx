@@ -40,6 +40,31 @@ export const PokeMart: React.FC<PokeMartProps> = ({
     (item) => selectedCategory === 'all' || item.category === selectedCategory
   );
 
+  const getItemSprite = (itemId: string) => {
+    const itemSprites: Record<string, string> = {
+      egg_common: 'egg',
+      egg_rare: 'lucky-egg',
+      egg_epic: 'lucky-egg',
+      potion_normal: 'potion',
+      potion_super: 'super-potion',
+      rare_candy: 'rare-candy',
+      pokeball: 'poke-ball',
+      superball: 'great-ball',
+      ultraball: 'ultra-ball',
+      seed_oran: 'oran-berry',
+      seed_cheri: 'cheri-berry',
+      seed_pecha: 'pecha-berry',
+      seed_rawst: 'rawst-berry',
+      seed_razz: 'razz-berry',
+      seed_nanab: 'nanab-berry',
+      fertilizer_super: 'growth-mulch',
+    };
+    const sprite = itemSprites[itemId];
+    return sprite
+      ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${sprite}.png`
+      : null;
+  };
+
   const incubatingEgg = eggs.find((e) => e.isIncubating);
   const unincubatedEggs = eggs.filter((e) => !e.isIncubating);
 
@@ -59,7 +84,7 @@ export const PokeMart: React.FC<PokeMartProps> = ({
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Compra pociones curativas, caramelos raros para subir de nivel y huevos Pokémon. Los pasos de Health Connect incuban tus huevos.
+            Compra pociones curativas, caramelos raros para subir de nivel y huevos Pokémon. Los pasos que registres manualmente incuban tus huevos.
           </p>
         </div>
 
@@ -152,7 +177,19 @@ export const PokeMart: React.FC<PokeMartProps> = ({
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-3xl">{item.icon}</span>
+                      <span className="relative flex items-center justify-center w-12 h-12 shrink-0">
+                        <span className="absolute text-3xl">{item.icon}</span>
+                        {getItemSprite(item.id) && (
+                          <img
+                            src={getItemSprite(item.id) || undefined}
+                            alt={item.name}
+                            className="relative z-10 w-12 h-12 object-contain pixelated"
+                            onError={(event) => {
+                              event.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        )}
+                      </span>
                       {ownedQty > 0 && (
                         <span className="text-[10px] bg-slate-800 text-slate-300 font-bold px-2 py-0.5 rounded-full border border-slate-700">
                           Tienes: {ownedQty}
@@ -208,7 +245,7 @@ export const PokeMart: React.FC<PokeMartProps> = ({
                   Incubadora Principal
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Los pasos reales leídos de Health Connect se suman automáticamente a la incubación.
+                  Los pasos que registres manualmente se suman a la incubación.
                 </p>
               </div>
             </div>

@@ -109,6 +109,27 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
     }));
   }, [profile?.updatedAt]);
 
+  useEffect(() => {
+    const matureBerries = () => {
+      const now = Date.now();
+      setState((prev) => {
+        let changed = false;
+        const plots = prev.berryGarden.plots.map((plot) => {
+          if ((plot.state === 'growing' || plot.state === 'sprout') && plot.readyAt && plot.readyAt <= now) {
+            changed = true;
+            return { ...plot, state: 'ready' as const };
+          }
+          return plot;
+        });
+        return changed ? { ...prev, berryGarden: { ...prev.berryGarden, plots } } : prev;
+      });
+    };
+
+    matureBerries();
+    const interval = window.setInterval(matureBerries, 30000);
+    return () => window.clearInterval(interval);
+  }, []);
+
   const handleImportProgress = useCallback(async () => {
     setImportLoading(true);
     try {
@@ -679,7 +700,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
       berryGarden: {
         ...prev.berryGarden,
         plots: prev.berryGarden.plots.map((plot) =>
-          plot.id === plotId ? { ...plot, isWatered: true, state: 'ready' as const } : plot
+          plot.id === plotId ? { ...plot, isWatered: true } : plot
         ),
       },
     }));

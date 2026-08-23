@@ -135,7 +135,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
 
-        {/* Health Connect Step Widget */}
+        {/* Manual step widget */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg relative overflow-hidden flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -143,9 +143,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <Footprints className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-white text-sm">Health Connect — Pasos</h3>
+                <h3 className="font-bold text-white text-sm">Pasos registrados</h3>
                 <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" /> Sincronizado hoy
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" /> Registro manual
                 </span>
               </div>
             </div>

@@ -439,7 +439,15 @@ export const PokemonCareTab: React.FC<PokemonCareTabProps> = ({
                 </div>
               </div>
             </div>
-          ) : null}
+          ) : (
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center shadow-lg">
+              <Sparkles className="w-10 h-10 mx-auto text-emerald-400 mb-3" />
+              <h3 className="text-lg font-black text-white">Tu campamento está preparado</h3>
+              <p className="text-sm text-slate-400 mt-2">
+                Añade un Pokémon a tu equipo para empezar a cuidarlo. Mientras tanto puedes visitar el huerto y cultivar bayas.
+              </p>
+            </div>
+          )}
         </div>
       )}
 

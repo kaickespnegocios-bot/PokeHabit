@@ -4,6 +4,7 @@ import {
   Egg,
   ExamBoss,
   Flashcard,
+  Flashcard,
   PartyPokemon,
   PokedexEntry,
   ShopItem,
@@ -46,6 +47,9 @@ export interface AppState {
 
 const STORAGE_KEY = 'poke_quest_state_v4';
 
+const isSeededContent = (id: string) =>
+  /^(task_[1-7]|exam_(mate_1|fq_1)|fc_[1-8])$/.test(id);
+
 export function loadStoredState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -56,10 +60,11 @@ export function loadStoredState(): AppState {
         party: parsed.party || [],
         pcBox: parsed.pcBox || [],
         capturedPokedexIds: parsed.capturedPokedexIds || [4],
-        tasks: parsed.tasks || [],
+        tasks: (parsed.tasks || []).filter((item: Task) => !isSeededContent(item.id)),
         dailyHabits: parsed.dailyHabits || INITIAL_DAILY_HABITS,
         subjects: parsed.subjects || INITIAL_SUBJECTS,
-        examBosses: parsed.examBosses || [],
+        examBosses: (parsed.examBosses || []).filter((item: ExamBoss) => !isSeededContent(item.id)),
+        flashcards: (parsed.flashcards || []).filter((item: Flashcard) => !isSeededContent(item.id)),
         skillStats: { ...INITIAL_SKILL_STATS, ...(parsed.skillStats || {}) },
         sexualHealthState: { ...INITIAL_SEXUAL_HEALTH, ...(parsed.sexualHealthState || {}) },
         berryGarden: { ...INITIAL_BERRY_GARDEN, ...(parsed.berryGarden || {}) },
@@ -127,11 +132,11 @@ export function loadStateForUser(cloudState: AppState | null | undefined): AppSt
       party: cloudState.party || [],
       pcBox: cloudState.pcBox || [],
       capturedPokedexIds: cloudState.capturedPokedexIds || [4],
-      tasks: cloudState.tasks || [],
+      tasks: (cloudState.tasks || []).filter((item) => !isSeededContent(item.id)),
       dailyHabits: cloudState.dailyHabits || INITIAL_DAILY_HABITS,
       subjects: cloudState.subjects || INITIAL_SUBJECTS,
-      examBosses: cloudState.examBosses || [],
-      flashcards: cloudState.flashcards || [],
+      examBosses: (cloudState.examBosses || []).filter((item) => !isSeededContent(item.id)),
+      flashcards: (cloudState.flashcards || []).filter((item) => !isSeededContent(item.id)),
       skillStats: { ...INITIAL_SKILL_STATS, ...(cloudState.skillStats || {}) },
       sexualHealthState: { ...INITIAL_SEXUAL_HEALTH, ...(cloudState.sexualHealthState || {}) },
       berryGarden: { ...INITIAL_BERRY_GARDEN, ...(cloudState.berryGarden || {}) },

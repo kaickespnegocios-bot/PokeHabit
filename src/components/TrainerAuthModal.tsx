@@ -261,7 +261,7 @@ export const TrainerAuthModal: React.FC<TrainerAuthModalProps> = ({
                   Personalizar mi Avatar Pokémon
                 </button>
 
-                {/* Google Fit Sync button */}
+                {/* Manual step tracker */}
                 <button
                   onClick={() => {
                     soundFx.playClick();
@@ -270,7 +270,7 @@ export const TrainerAuthModal: React.FC<TrainerAuthModalProps> = ({
                   className="w-full py-2.5 bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-500/40 rounded-2xl text-xs font-bold text-emerald-200 flex items-center justify-center gap-2 cursor-pointer transition-colors"
                 >
                   <Shield className="w-4 h-4 text-emerald-400" />
-                  Vincular Google Fit & Sincronizar Pasos
+                  Registrar pasos manualmente
                 </button>
               </div>
             </>
@@ -283,7 +283,7 @@ export const TrainerAuthModal: React.FC<TrainerAuthModalProps> = ({
                   Inicio de Sesión y Perfiles Locales
                 </p>
                 <p className="text-[11px] text-slate-400">
-                  Tus datos se guardan en tu dispositivo. Puedes conectar Google para sincronizar pasos y cambiar de perfil rápidamente.
+                  Tus datos se guardan en tu dispositivo. Puedes registrar tus pasos manualmente y cambiar de perfil rápidamente.
                 </p>
               </div>
 

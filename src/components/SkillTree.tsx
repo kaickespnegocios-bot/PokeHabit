@@ -26,7 +26,7 @@ export const SkillTree: React.FC<SkillTreeProps> = ({ skillStats }) => {
       icon: <Dumbbell className="w-6 h-6 text-emerald-400" />,
       color: 'from-emerald-500 to-teal-400',
       bgLight: 'bg-emerald-950/20 border-emerald-500/40',
-      source: 'Alimentado por pasos de Health Connect y tareas de Salud/Deporte.',
+      source: 'Alimentado por pasos registrados manualmente y tareas de Salud/Deporte.',
       perks: [
         'Nv. 2: +10% XP adicional al caminar',
         'Nv. 4: Huevos eclosionan 15% más rápido',
