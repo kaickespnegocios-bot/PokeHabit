@@ -15,7 +15,7 @@ import {
   X,
   User,
   LogIn,
-  ChevronDown,
+  Menu,
 } from 'lucide-react';
 import { soundFx } from '../utils/audio';
 import { AvatarRenderer } from './AvatarRenderer';
@@ -197,9 +197,12 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   return (
     <>
-      {/* Desktop / Tablet Section Dropdown */}
-      <nav className="bg-slate-900 border-b border-slate-800 sticky top-[53px] z-30 shadow hidden sm:block">
-        <div ref={desktopMenuRef} className="max-w-7xl mx-auto px-3 py-2 relative">
+      {/* Collapsible sidebar navigation */}
+      <nav
+        ref={desktopMenuRef}
+        className={`fixed left-0 top-[53px] bottom-0 z-40 bg-slate-900 border-r border-slate-800 shadow-2xl transition-all duration-200 ${showDesktopMenu ? 'w-60' : 'w-16'}`}
+      >
+        <div className="p-2">
           <button
             onClick={() => {
               soundFx.playClick();
@@ -207,41 +210,39 @@ export const Navigation: React.FC<NavigationProps> = ({
             }}
             aria-expanded={showDesktopMenu}
             aria-haspopup="menu"
-            aria-controls="desktop-section-menu"
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-bold cursor-pointer hover:bg-slate-700 transition-colors"
+            aria-controls="sidebar-section-menu"
+            aria-label={showDesktopMenu ? 'Cerrar menú' : 'Abrir menú'}
+            className="w-12 h-12 flex items-center justify-center rounded-full bg-slate-700 border border-slate-600 text-white cursor-pointer hover:bg-slate-600 transition-colors"
           >
-            {tabs.find((tab) => tab.id === activeTab)?.icon}
-            <span>{tabs.find((tab) => tab.id === activeTab)?.label || 'Secciones'}</span>
-            <ChevronDown className={`w-4 h-4 transition-transform ${showDesktopMenu ? 'rotate-180' : ''}`} />
+            {showDesktopMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
-          {showDesktopMenu && (
-            <div id="desktop-section-menu" role="menu" className="absolute left-3 top-full mt-1 w-64 max-h-[70vh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-2 animate-fadeIn">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => handleSelect(tab.id)}
-                  role="menuitem"
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-bold cursor-pointer transition-colors ${
-                    activeTab === tab.id ? 'bg-red-600 text-white' : 'text-slate-200 hover:bg-slate-800'
-                  }`}
-                >
-                  {tab.icon}
-                  <span className="flex-1">{tab.label}</span>
-                  {tab.badge !== undefined && (
-                    <span className="bg-amber-400 text-slate-900 text-[10px] font-black px-1.5 py-0.5 rounded-full">
-                      {tab.badge}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
+          <div id="sidebar-section-menu" role="menu" className="mt-3 space-y-1 overflow-y-auto max-h-[calc(100vh-125px)]">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => handleSelect(tab.id)}
+                role="menuitem"
+                title={!showDesktopMenu ? tab.label : undefined}
+                className={`relative w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left text-xs font-bold cursor-pointer transition-colors ${
+                  activeTab === tab.id ? 'bg-red-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                }`}
+              >
+                <span className="shrink-0">{tab.icon}</span>
+                {showDesktopMenu && <span className="flex-1 truncate">{tab.label}</span>}
+                {tab.badge !== undefined && (
+                  <span className={`${showDesktopMenu ? '' : 'absolute top-1 right-1'} bg-amber-400 text-slate-900 text-[10px] font-black px-1.5 py-0.5 rounded-full`}>
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       </nav>
 
       {/* Native-like Mobile Bottom Navigation Bar (Visible on mobile screens) */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/98 border-t border-slate-800 backdrop-blur-lg px-2 py-1 flex items-center justify-around shadow-2xl safe-area-bottom">
+      <div className="hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/98 border-t border-slate-800 backdrop-blur-lg px-2 py-1 items-center justify-around shadow-2xl safe-area-bottom">
         {/* Dashboard */}
         <button
           onClick={() => handleSelect('dashboard')}
@@ -326,7 +327,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 
       {/* Mobile "Más Secciones" Bottom Sheet Modal */}
       {showMoreModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:hidden animate-fadeIn">
+        <div className="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm items-end animate-fadeIn">
           <div className="bg-slate-900 border-t-2 border-red-500 rounded-t-3xl w-full p-5 max-h-[85vh] overflow-y-auto space-y-4 shadow-2xl animate-slideUp">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2">

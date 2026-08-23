@@ -1234,7 +1234,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
       />
 
       {/* Primary Content View */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-28 sm:pb-16">
+      <main className="flex-1 max-w-7xl w-full mx-auto pl-20 pr-3 sm:pr-6 py-4 sm:py-6 pb-28 sm:pb-16">
         {activeTab === 'dashboard' && (
           <Dashboard
             trainer={state.trainer}

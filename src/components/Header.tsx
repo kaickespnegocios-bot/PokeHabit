@@ -30,10 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const avatarConfig = {
-    ...(profile?.avatarConfig || trainer.avatarConfig || DEFAULT_AVATAR_CONFIG),
-    ...(profile?.gender ? { base: profile.gender === 'female' ? 'trainer-f' : 'classic' } : {}),
-  };
+  const avatarConfig = profile?.avatarConfig || trainer.avatarConfig || DEFAULT_AVATAR_CONFIG;
   const displayName = profile?.username || trainer.username || trainer.name;
 
   useEffect(() => {

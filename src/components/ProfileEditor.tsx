@@ -8,6 +8,8 @@ import {
 } from '../data/avatarAssets';
 import { soundFx } from '../utils/audio';
 
+const AVATAR_BASE_PATH = `${import.meta.env.BASE_URL}assets/avatars/base`;
+
 interface ProfileEditorProps {
   trainer: TrainerProfile;
   profile: UserAccountProfile | null;
@@ -35,6 +37,8 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
   const [avatarConfig, setAvatarConfig] = useState<AvatarConfig>(
     profile?.avatarConfig || trainer.avatarConfig || DEFAULT_AVATAR_CONFIG
   );
+  const selectedCharacter = avatarConfig.base === 'trainer-f' ? 'female' : 'male';
+  const characterSprite = `${AVATAR_BASE_PATH}/${selectedCharacter === 'female' ? 'mujer' : 'hombre'}.png`;
 
   if (!isOpen) return null;
 
@@ -52,6 +56,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
         bio: bio.trim(),
         themeColor,
         avatarConfig,
+        avatarSprite: characterSprite,
       },
       trainer: {
         username: username.trim() || defaultUsername,
@@ -59,6 +64,7 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
         bio: bio.trim(),
         themeColor,
         avatarConfig,
+        avatarSprite: characterSprite,
       },
     });
     onClose();
@@ -106,54 +112,34 @@ export const ProfileEditor: React.FC<ProfileEditorProps> = ({
             />
           </div>
 
-          {/* Avatar layers */}
-          <AvatarLayerPicker
-            title="Base"
-            options={AVATAR_MANIFEST.base}
-            selected={avatarConfig.base}
-            onSelect={(v) => updateAvatar('base', v)}
-          />
-          <AvatarLayerPicker
-            title="Tono de piel"
-            options={AVATAR_MANIFEST.skinTone}
-            selected={avatarConfig.skinTone}
-            onSelect={(v) => updateAvatar('skinTone', v)}
-            showColor
-          />
-          <AvatarLayerPicker
-            title="Pelo"
-            options={AVATAR_MANIFEST.hair}
-            selected={avatarConfig.hair}
-            onSelect={(v) => updateAvatar('hair', v)}
-          />
+          {/* Character selection */}
           <div>
-            <label className="text-xs font-black uppercase text-slate-400 tracking-wider block mb-2">Color de pelo</label>
-            <div className="flex flex-wrap gap-2">
-              {AVATAR_MANIFEST.hairColor.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => updateAvatar('hairColor', c.id)}
-                  className={`w-8 h-8 rounded-full border-2 cursor-pointer transition-transform ${
-                    avatarConfig.hairColor === c.id ? 'scale-125 border-white ring-2 ring-white/50' : 'border-transparent'
-                  }`}
-                  style={{ backgroundColor: c.id }}
-                  title={c.label}
-                />
-              ))}
+            <label className="text-xs font-black uppercase text-slate-400 tracking-wider block mb-2">Personaje</label>
+            <div className="grid grid-cols-2 gap-3">
+              {(['male', 'female'] as const).map((gender) => {
+                const selected = selectedCharacter === gender;
+                const label = gender === 'female' ? 'Mujer' : 'Hombre';
+                return (
+                  <button
+                    key={gender}
+                    type="button"
+                    onClick={() => updateAvatar('base', gender === 'female' ? 'trainer-f' : 'classic')}
+                    className={`relative flex items-center justify-center gap-3 p-3 rounded-2xl border-2 cursor-pointer transition-all ${
+                      selected ? 'border-red-500 bg-red-950/40 ring-2 ring-red-500/40' : 'border-slate-700 bg-slate-800 hover:border-slate-500'
+                    }`}
+                  >
+                    <img
+                      src={`${AVATAR_BASE_PATH}/${gender === 'female' ? 'mujer' : 'hombre'}.png`}
+                      alt={label}
+                      className="w-16 h-16 object-contain pixelated"
+                    />
+                    <span className="font-black text-sm">{label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
-          <AvatarLayerPicker
-            title="Ropa"
-            options={AVATAR_MANIFEST.clothes}
-            selected={avatarConfig.clothes}
-            onSelect={(v) => updateAvatar('clothes', v)}
-          />
-          <AvatarLayerPicker
-            title="Accesorios"
-            options={AVATAR_MANIFEST.accessory}
-            selected={avatarConfig.accessory}
-            onSelect={(v) => updateAvatar('accessory', v)}
-          />
+
           <AvatarLayerPicker
             title="Fondo"
             options={AVATAR_MANIFEST.background}

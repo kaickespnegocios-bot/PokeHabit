@@ -287,7 +287,21 @@ export async function updateUserProfile(
       { merge: true }
     );
 
-    await syncPublicProfileDocument(uid, merged, existing?.gameState);
+    try {
+      await setDoc(usernameRef(merged.username), {
+        uid,
+        username: merged.username,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (err) {
+      console.warn('Could not update username index', err);
+    }
+
+    try {
+      await syncPublicProfileDocument(uid, merged, existing?.gameState);
+    } catch (err) {
+      console.warn('Could not sync public profile', err);
+    }
     return true;
   } catch (err) {
     console.error('Error updating user profile', err);

@@ -175,7 +175,7 @@ export const TrainerAuthModal: React.FC<TrainerAuthModalProps> = ({
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-400 font-semibold">Google Fit Sync</span>
+                    <span className="text-xs text-slate-400 font-semibold">Pasos manuales</span>
                     <span
                       className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                         trainer.isGoogleFitConnected
