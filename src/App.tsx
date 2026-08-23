@@ -21,7 +21,13 @@ import {
   loadStateForUser,
 } from './utils/storage';
 import { useAuth, useHybridPersistence } from './contexts/AuthContext';
-import { loadUserData, mergeProfileIntoTrainer } from './services/userService';
+import {
+  createDefaultProfile,
+  loadUserData,
+  mergeProfileIntoTrainer,
+  needsGenderMigration,
+  setUserGender,
+} from './services/userService';
 import { POKEDEX_DATABASE, getRandomCatchablePokemon } from './utils/pokeApi';
 import { soundFx } from './utils/audio';
 import confetti from 'canvas-confetti';
@@ -48,6 +54,7 @@ import { ImportProgressModal } from './components/ImportProgressModal';
 import { GoogleFitModal } from './components/GoogleFitModal';
 import { AudioPlayerWidget } from './components/AudioPlayerWidget';
 import { PokemonCareTab } from './components/PokemonCareTab';
+import { GenderMigrationModal } from './components/GenderMigrationModal';
 import { SexualHealthState, BerryId } from './types';
 
 interface AppProps {
@@ -65,6 +72,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
     importLocalProgress,
     startFreshOnCloud,
     updateProfile,
+    refreshProfile,
     signOut,
   } = useAuth();
 
@@ -1330,6 +1338,7 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
             onDeleteHabit={handleDeleteHabit}
             onAddSteps={handleAddSteps}
             onClaimDailyBonus={handleClaimDailyBonus}
+            onOpenGoogleFitModal={() => setShowFitModal(true)}
           />
         )}
 
@@ -1402,17 +1411,37 @@ export const App: React.FC<AppProps> = ({ initialTab = 'dashboard' }) => {
           isOpen={showProfileEditor}
           onClose={() => setShowProfileEditor(false)}
           onSave={handleSaveProfile}
-          onOpenPrivacy={() => setShowPrivacyPanel(true)}
+          onOpenPrivacy={() => {
+            setShowProfileEditor(false);
+            setShowPrivacyPanel(true);
+          }}
         />
       )}
 
-      {showPrivacyPanel && profile && user && (
+      {showPrivacyPanel && user && (
         <PrivacySettingsPanel
-          profile={profile}
+          profile={
+            profile ??
+            createDefaultProfile(
+              user.uid,
+              user.email || '',
+              state.trainer.username || state.trainer.name || 'Entrenador',
+              'male'
+            )
+          }
           isOpen={showPrivacyPanel}
           onClose={() => setShowPrivacyPanel(false)}
           onSave={async (settings) => {
             await updateProfile(settings);
+          }}
+        />
+      )}
+
+      {isAuthenticated && user && needsGenderMigration(profile) && (
+        <GenderMigrationModal
+          onSelect={async (gender) => {
+            const saved = await setUserGender(user.uid, gender);
+            if (saved) await refreshProfile();
           }}
         />
       )}

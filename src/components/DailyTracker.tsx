@@ -12,6 +12,7 @@ import {
   Sparkles,
   Zap,
   Gift,
+  RefreshCw,
 } from 'lucide-react';
 import { soundFx } from '../utils/audio';
 import confetti from 'canvas-confetti';
@@ -25,6 +26,7 @@ interface DailyTrackerProps {
   onDeleteHabit: (habitId: string) => void;
   onAddSteps: (steps: number) => void;
   onClaimDailyBonus: () => void;
+  onOpenGoogleFitModal: () => void;
 }
 
 export const DailyTracker: React.FC<DailyTrackerProps> = ({
@@ -36,6 +38,7 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({
   onDeleteHabit,
   onAddSteps,
   onClaimDailyBonus,
+  onOpenGoogleFitModal,
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -46,7 +49,9 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({
   const progressPercent = Math.round((completedCount / totalCount) * 100);
   const isAllCompleted = completedCount === dailyHabits.length && dailyHabits.length > 0;
 
-  const hasWalkingBonus = party.some((p) => p.types.includes('flying') || p.types.includes('normal'));
+  const walkingBonusPokemon = party.find((p) => p.types.includes('flying') || p.types.includes('normal'));
+  const walkingCompanion = walkingBonusPokemon || party[0];
+  const hasWalkingBonus = Boolean(walkingBonusPokemon);
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +76,7 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-black text-white">Daily Tracker & Pasos</h2>
+            <h2 className="text-xl font-black text-white">Actividad diaria y pasos</h2>
             <span className="bg-orange-500/20 text-orange-300 font-black text-xs px-2.5 py-0.5 rounded-full border border-orange-500/40 flex items-center gap-1">
               <Flame className="w-3.5 h-3.5 fill-current text-orange-400" />
               Racha de {trainer.dailyStreak} días
@@ -106,6 +111,13 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({
                 </span>
               </div>
             </div>
+            <button
+              type="button"
+              onClick={onOpenGoogleFitModal}
+              className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-black rounded-xl cursor-pointer transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Google Fit
+            </button>
           </div>
 
           <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60 text-center space-y-2">
@@ -135,15 +147,32 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({
             <div className="flex items-center gap-1.5 font-bold text-emerald-400">
               <Zap className="w-4 h-4" /> Compañero de Caminata
             </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              {hasWalkingBonus ? (
-                <span className="text-amber-300 font-bold">
-                  ✨ ¡Tienes un Pokémon Volador/Normal activo! Ganas +50% XP extra al caminar.
-                </span>
-              ) : (
-                'Lleva un Pokémon de tipo Volador o Normal en tu equipo para ganar un 50% de XP extra por pasos.'
-              )}
-            </p>
+            {walkingCompanion ? (
+              <div className="flex items-center gap-3 mt-2 bg-slate-900/60 rounded-xl p-2">
+                <img
+                  src={walkingCompanion.sprite}
+                  alt={walkingCompanion.nickname || walkingCompanion.name}
+                  className="w-12 h-12 object-contain pixelated"
+                />
+                <div>
+                  <p className="text-xs font-black text-white">
+                    {walkingCompanion.nickname || walkingCompanion.name}
+                  </p>
+                  <p className="text-[10px] text-slate-400">
+                    {walkingCompanion.types.map((type) => POKEMON_TYPES[type]?.label || type).join(' / ')}
+                  </p>
+                  {hasWalkingBonus ? (
+                    <p className="text-[10px] text-amber-300 font-bold">+50% XP al caminar</p>
+                  ) : (
+                    <p className="text-[10px] text-slate-400">Necesita tipo Volador o Normal para dar bonus</p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Aún no tienes Pokémon en tu equipo. Consigue uno para elegir compañero de caminata.
+              </p>
+            )}
           </div>
 
           {/* Step simulator triggers */}
