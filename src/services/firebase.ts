@@ -3,12 +3,12 @@ import { Auth, getAuth } from 'firebase/auth';
 import { Firestore, getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyClWzslDceU1IOKBcx3i5PKagnAhltePvU',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'pokehabit-316ab.firebaseapp.com',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'pokehabit-316ab',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'pokehabit-316ab.firebasestorage.app',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '620227432812',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:620227432812:web:a533f00aca29fa7e152349',
 };
 
 export function isFirebaseConfigured(): boolean {
